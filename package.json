@@ -1,0 +1,28 @@
+{
+  "name": "league17killer",
+  "version": "0.3.1",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "author": "deepdarkness",
+  "license": "MIT",
+  "babel": {
+    "presets": [
+      "env",
+      "stage-2"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "file-loader": "^1.1.6",
+    "gulp": "^3.9.1",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
+  }
+}
