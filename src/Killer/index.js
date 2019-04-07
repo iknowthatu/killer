@@ -216,18 +216,6 @@ class Killer {
     if(this.settings.autofight != oldAutofightStatus) this.startKillerLife();
   }
 
-  loadSettings() {
-    let loadedSettings = CookieMaker.getCookie('killerSettings');
-    if(!loadedSettings) return;
-    loadedSettings = JSON.parse(loadedSettings);
-    let parametres = this.settingsParametres;
-    parametres.forEach(parameter => {
-      let value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
-      this.changeSettings({parameter: parameter, value: value});
-    });
-    this.settings.attack = loadedSettings.attack;
-  }
-
   updateViews(settings) {
     let attackCheckboxes = document.querySelectorAll('[data-changeaction=attack] > input');
     attackCheckboxes.forEach((checkbox, index) => {
@@ -264,10 +252,20 @@ class Killer {
   }
 
   saveSettings() {
-    let timeExpires = new Date(new Date().getTime() + 7*24*60*60 * 1000);
-    let options = {expires: timeExpires.toUTCString()};
     let settingsToSave = JSON.stringify(this.getSettingsToSave());
-    CookieMaker.setCookie('killerSettings', settingsToSave, options);
+    window.localStorage.setItem('killerSettings', settingsToSave);
+  }
+
+  loadSettings() {
+    let loadedSettings = window.localStorage.getItem('killerSettings');
+    if(!loadedSettings) return;
+    loadedSettings = JSON.parse(loadedSettings);
+    let parametres = this.settingsParametres;
+    parametres.forEach(parameter => {
+      let value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
+      this.changeSettings({parameter: parameter, value: value});
+    });
+    this.settings.attack = loadedSettings.attack;
   }
 
   getSettingsToSave() {

@@ -25,6 +25,12 @@ class KillerHeart {
     newParams.isCaptcha = isCaptcha;
     if(isCaptcha) {
       console.log('u should enter captcha');
+
+      // for electron wrapper
+      if (window.killerExtension && window.killerExtension.shotCaptcha) {
+        window.killerExtension.shotCaptcha();
+      }
+
       this.switchAlarm(true);
       return newParams;
     };
