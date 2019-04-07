@@ -2,7 +2,7 @@
   "author":"deepdarkness",
   "name": "League17Killer",
   "description": "It helps to save your expensive time",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "manifest_version": 2,
   "minimum_chrome_version": "34",
   "icons": {

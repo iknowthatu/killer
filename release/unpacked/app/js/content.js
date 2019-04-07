@@ -1747,6 +1747,12 @@ var KillerHeart = function () {
       newParams.isCaptcha = isCaptcha;
       if (isCaptcha) {
         console.log('u should enter captcha');
+
+        // for electron wrapper
+        if (window.killerExtension && window.killerExtension.shotCaptcha) {
+          window.killerExtension.shotCaptcha();
+        }
+
         this.switchAlarm(true);
         return newParams;
       };
@@ -2635,6 +2641,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var lifesCounter = 0;
+
 var Killer = function () {
   function Killer(imageReplacer) {
     _classCallCheck(this, Killer);
@@ -2730,7 +2738,8 @@ var Killer = function () {
   }, {
     key: 'startKillerLife',
     value: function startKillerLife() {
-      this.killerHeartbeat();
+      this.currentKillerLife = lifesCounter++;
+      this.killerHeartbeat({ life: this.currentKillerLife });
     }
   }, {
     key: 'wait',
@@ -2754,12 +2763,11 @@ var Killer = function () {
 
       var blood = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (!this.settings.autofight) return Promise.resolve(blood);
+      if (!this.settings.autofight || this.currentKillerLife !== blood.life) return Promise.resolve(blood);
 
       this.showKilledCounter(this.killedCounter);
-      //console.log(`blood: `, blood);
 
-      var randomTimeInterval = (Math.random() * 2 + 1) * 1000;
+      var randomTimeInterval = (Math.random() * 5 + 2) * 1000;
       return Promise.resolve(blood).then(this.commonHeart.nextPulse).then(this.killerHeart.nextPulse).then(this.catcherHeart.nextPulse).then(this.healerHeart.nextPulse).then(this.travellerHeart.nextPulse).then(function (blood) {
         return _this3.wait(randomTimeInterval, blood);
       }).then(function (blood) {
@@ -2869,21 +2877,6 @@ var Killer = function () {
       if (this.settings.autofight != oldAutofightStatus) this.startKillerLife();
     }
   }, {
-    key: 'loadSettings',
-    value: function loadSettings() {
-      var _this6 = this;
-
-      var loadedSettings = _CookieMaker2.default.getCookie('killerSettings');
-      if (!loadedSettings) return;
-      loadedSettings = JSON.parse(loadedSettings);
-      var parametres = this.settingsParametres;
-      parametres.forEach(function (parameter) {
-        var value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
-        _this6.changeSettings({ parameter: parameter, value: value });
-      });
-      this.settings.attack = loadedSettings.attack;
-    }
-  }, {
     key: 'updateViews',
     value: function updateViews(settings) {
       var attackCheckboxes = document.querySelectorAll('[data-changeaction=attack] > input');
@@ -2922,10 +2915,23 @@ var Killer = function () {
   }, {
     key: 'saveSettings',
     value: function saveSettings() {
-      var timeExpires = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
-      var options = { expires: timeExpires.toUTCString() };
       var settingsToSave = JSON.stringify(this.getSettingsToSave());
-      _CookieMaker2.default.setCookie('killerSettings', settingsToSave, options);
+      window.localStorage.setItem('killerSettings', settingsToSave);
+    }
+  }, {
+    key: 'loadSettings',
+    value: function loadSettings() {
+      var _this6 = this;
+
+      var loadedSettings = window.localStorage.getItem('killerSettings');
+      if (!loadedSettings) return;
+      loadedSettings = JSON.parse(loadedSettings);
+      var parametres = this.settingsParametres;
+      parametres.forEach(function (parameter) {
+        var value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
+        _this6.changeSettings({ parameter: parameter, value: value });
+      });
+      this.settings.attack = loadedSettings.attack;
     }
   }, {
     key: 'getSettingsToSave',
@@ -2985,12 +2991,7 @@ var _App2 = _interopRequireDefault(_App);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// require(`./manifest.json`);
-// require(`./images/icon_small_16.png`);
-// require(`./images/icon_large_48.png`);
 __webpack_require__(/*! ./styles/styles.css */ "./src/styles/styles.css");
-// require(`./data/pokemons.json`);
-// require('./audio/signal.ogx');
 
 var app = new _App2.default();
 
