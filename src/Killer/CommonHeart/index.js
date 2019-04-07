@@ -28,15 +28,15 @@ class CommonHeart {
   showLocationIds() {
     let locationButtons = document.querySelectorAll('#divLocGo > .button');
     let nextLocationButtons = Array.from(locationButtons)
-    .forEach(locationButton => {
-      if(locationButton.innerHTML.match(/\[id\d+\]/)) return;
-      let btnWrapper = locationButton.outerHTML;
-      let locationId = btnWrapper.match(/btnGo\d+/)[0].replace('btnGo','');
-      locationButton.innerHTML += ` [id${locationId}]`;
-      let contentWidth = locationButton.innerHTML.length*10;
-      if(locationButton.offsetWidth > contentWidth) return;
-      locationButton.style.width = `${contentWidth}px`;
-    });
+      .forEach(locationButton => {
+        if(locationButton.innerHTML.match(/\[id\d+\]/)) return;
+        let btnWrapper = locationButton.outerHTML;
+        let locationId = btnWrapper.match(/btnGo\d+/)[0].replace('btnGo','');
+        locationButton.innerHTML += ` [id${locationId}]`;
+        let contentWidth = locationButton.innerHTML.length*10;
+        if(locationButton.offsetWidth > contentWidth) return;
+        locationButton.style.width = `${contentWidth}px`;
+      });
   }
 
   isFight() {

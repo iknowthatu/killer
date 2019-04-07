@@ -11,6 +11,8 @@ import spillGlobalVars from './Inject/TKeyGetter';
 import CookieMaker from './CookieMaker';
 import Alarm from './Alarm';
 
+let lifesCounter = 0;
+
 class Killer {
   constructor(imageReplacer){
     //this.init();
@@ -95,7 +97,8 @@ class Killer {
   }
 
   startKillerLife() {
-    this.killerHeartbeat();
+    this.currentKillerLife = lifesCounter++;
+    this.killerHeartbeat({ life: this.currentKillerLife });
   }
 
   wait(ms, paramToChain) {
@@ -110,12 +113,11 @@ class Killer {
   }
 
   killerHeartbeat(blood={}) {
-    if(!this.settings.autofight) return Promise.resolve(blood);
+    if(!this.settings.autofight || this.currentKillerLife !== blood.life) return Promise.resolve(blood);
 
     this.showKilledCounter(this.killedCounter);
-    //console.log(`blood: `, blood);
 
-    let randomTimeInterval = (Math.random()*2+1)*1000;
+    let randomTimeInterval = (Math.random()*5+2)*1000;
     return Promise.resolve(blood)
       .then(this.commonHeart.nextPulse)
       .then(this.killerHeart.nextPulse)
