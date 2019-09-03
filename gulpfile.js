@@ -38,14 +38,14 @@ gulp.task('copy-manifest', () => {
     .pipe(gulp.dest('./dist/app'));
 });
 
-gulp.task('default', [
+gulp.task('default', gulp.series([
   'clear-dist',
   'copy-manifest',
   'copy-images',
   'copy-audio',
   'copy-data',
   'webpack'
-]);
+]));
 
 function pack(browserName, cb) {
   let fileExt = browserName === 'opera' ? 'nex' : 'crx';
@@ -80,13 +80,13 @@ gulp.task('release-unpacked', (cb) => {
   cb();
 });
 
-gulp.task('pack-release', [
+gulp.task('pack-release', gulp.series([
   'pack-for-opera',
   'pack-for-chrome',
   'pack-for-chromium'
-]);
+]));
 
-gulp.task('release', [
+gulp.task('release', gulp.series([
   'pack-release',
   'release-unpacked'
-]);
+]));
