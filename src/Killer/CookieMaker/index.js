@@ -1,8 +1,8 @@
 class CookieMaker {
   // возвращает cookie с именем name, если есть, если нет, то undefined
   static getCookie(name) {
-    var matches = document.cookie.match(new RegExp(
-      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    const matches = document.cookie.match(new RegExp(
+      '(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
   }
@@ -10,10 +10,10 @@ class CookieMaker {
   static setCookie(name, value, options) {
     options = options || {};
 
-    var expires = options.expires;
+    let expires = options.expires;
 
-    if (typeof expires == "number" && expires) {
-      var d = new Date();
+    if (typeof expires == 'number' && expires) {
+      const d = new Date();
       d.setTime(d.getTime() + expires * 1000);
       expires = options.expires = d;
     }
@@ -23,13 +23,13 @@ class CookieMaker {
 
     value = encodeURIComponent(value);
 
-    var updatedCookie = name + "=" + value;
+    let updatedCookie = name + '=' + value;
 
-    for (var propName in options) {
-      updatedCookie += "; " + propName;
-      var propValue = options[propName];
+    for (const propName in options) {
+      updatedCookie += '; ' + propName;
+      const propValue = options[propName];
       if (propValue !== true) {
-        updatedCookie += "=" + propValue;
+        updatedCookie += '=' + propValue;
       }
     }
 

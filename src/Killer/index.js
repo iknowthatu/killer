@@ -7,8 +7,8 @@ import TravellerHeart from './TravellerHeart';
 import TravellerTentacle from './TravellerTentacle';
 import SettingsView from './SettingsContainer';
 import setRequestsHook from './Inject/RequestsHook';
-import spillGlobalVars from './Inject/TKeyGetter';
-import CookieMaker from './CookieMaker';
+// import spillGlobalVars from './Inject/TKeyGetter';
+// import CookieMaker from './CookieMaker';
 import Alarm from './Alarm/Alarm';
 
 let lifesCounter = 0;
