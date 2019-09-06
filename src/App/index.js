@@ -15,5 +15,3 @@ class KillerApp {
 }
 
 export default KillerApp;
-
-
