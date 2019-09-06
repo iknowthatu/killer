@@ -48,11 +48,10 @@ export class FSM {
       throw new Error('No initial state');
     }
 
-    await state.action && state.action.call(this);
-
     const transitionToNextState = this.getTransitionToNextState(state);
     if (transitionToNextState) {
       this.currentState = this.getStateByName(transitionToNextState.targetStateName);
+      await this.currentState.action && this.currentState.action.call(this);
     }
   }
 

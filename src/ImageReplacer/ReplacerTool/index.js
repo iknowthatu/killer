@@ -1,4 +1,12 @@
 import Comparator from './../MonsterComparator';
+import {
+  SELECTOR_FIGHT_POKEMON_PANEL_ENEMY,
+  SELECTOR_FIGHT_POKEMON_PANEL_PLAYER,
+  SELECTOR_MENU_PANELS,
+  SELECTOR_NURSERY_PANEL,
+  SELECTOR_POKEDEX_PANEL,
+  SELECTOR_POKE_CARDS
+} from '../../configs/querySelectors';
 
 class League17HelperApp {
     constructor() {
@@ -26,12 +34,12 @@ class League17HelperApp {
   }
 
   isMainDivsLoaded() {
-    let myPokemonDiv = document.querySelector('#divFightI');
-		let enemyPokemonDiv = document.querySelector('#divFightH');
-		let myPokeTeam = document.querySelector('#divDockMenu > .divDockPanels');
-		let pokeCards = document.querySelector('#divPokeCard');
-    let pokedex = document.querySelector('#divPokedex');
-    let farm = document.querySelector('.divDialog');
+    let myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
+		let enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
+		let myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS);
+		let pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
+    let pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
+    let farm = document.querySelector(SELECTOR_NURSERY_PANEL);
 
     let allMainDivsLoaded = myPokemonDiv && enemyPokemonDiv && myPokeTeam && pokeCards
       pokeCards && pokedex && farm;
@@ -41,12 +49,12 @@ class League17HelperApp {
 	setObservers() {
     if(this.observer) return;
 
-		let myPokemonDiv = document.querySelector( '#divFightI' );
-		let enemyPokemonDiv = document.querySelector( '#divFightH' );
-		let myPokeTeam = document.querySelector( '#divDockMenu > .divDockPanels' ); // .divPokeTeam
-		let pokeCards = document.querySelector( '#divPokeCard' );
-    let pokedex = document.querySelector( '#divPokedex' );
-    let farm = document.querySelector( '.divDialog' );
+		let myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
+		let enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
+		let myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS); // .divPokeTeam
+		let pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
+    let pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
+    let farm = document.querySelector(SELECTOR_NURSERY_PANEL);
 
 		let config = { attributes: true, childList: true, subtree: true };
 

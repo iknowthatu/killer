@@ -1,3 +1,20 @@
+import {
+  POKEMON_IMAGES_HOST_NORMAL,
+  POKEMON_IMAGES_HOST_SHINE,
+  POKEMON_NAMES_FILEPATH
+} from './../../configs/monsterComparatorConfigs';
+
+import {
+  SELECTOR_INLINE_POKEMON,
+  SELECTOR_INLINE_POKEMON_IMAGE,
+  SELECTOR_TINY_POKEMON_CARDS,
+  SELECTOR_POKEMON_CARDS,
+  SELECTOR_POKEDEX_POKEMON_CARD,
+  SELECTOR_POKEDEX_POKEMON_TITLE
+} from './../../configs/querySelectors';
+
+const ATTRIBUTE_FLAG_DATA_WAS_CHANGED = 'data-changed';
+
 class League17MonsterComparator {
 	constructor() {
       this.init();
@@ -10,276 +27,327 @@ class League17MonsterComparator {
    */
   init(params = {}) {
       // this.normalHost = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/';
-      this.normalHost = 'https://www.serebii.net/sunmoon/pokemon/';
-      this.shineHost = 'https://www.serebii.net/Shiny/SM/';
+      this.normalHost = POKEMON_IMAGES_HOST_NORMAL;
+      this.shineHost = POKEMON_IMAGES_HOST_SHINE;
       this.pokemons = [];
-      this.pokemonsDataSrc = params.pokemonsDataSrc || 'data/pokemons.json';
+      this.pokemonsDataSrc = params.pokemonsDataSrc || POKEMON_NAMES_FILEPATH;
 
       this.loadPokemonsData(this.pokemonsDataSrc);
   }
 
   loadPokemonsData(pokemonsDataSrc) {
     return fetch(chrome.runtime.getURL(pokemonsDataSrc))
-    .then( response=>response.json() )
-    .then( data=>this.pokemons=data );
+      .then(response => response.json())
+      .then(data => this.pokemons = data);
   }
 
-  getOldGoodPokemonImageSrc( number, isShine=false ) {
+  getOldGoodPokemonImageSrc(pokemonNumber, isShine = false) {
     let host = isShine ? this.shineHost : this.normalHost;
-    return `${host}${number}.png`;
+
+    return `${host}${pokemonNumber}.png`;
   }
 
-  getPokemonNameByNumber( number ) {
-    let pokemonFromData = this.pokemons.filter(pok=>pok.number==number)[0];
-    if( !pokemonFromData ) return `i don't know this pokemon`;
+  getPokemonNameByNumber(pokemonNumber) {
+    let pokemonFromData = this.pokemons.find(pokemon => pokemon.number == pokemonNumber);
+    if (!pokemonFromData) {
+      return `i don't know this pokemon`;
+    }
+
     return pokemonFromData.name;
   }
 
-  getPokemonNumberString( number=0 ) {
-    if(number < 10) return `00${number}`;
-    if(number < 100) return `0${number}`;
-    if(number > 806) return 0;
+  getPokemonNumberString(number = 0) {
+    if(+number > 806) return 0;
+
+    return (number).toString().padStart(3, '0');
+  }
+
+  /* inline pokemons */
+
+  getInlinePokemonsNodes() {
+    let inlinePokemonsNodes = document.querySelectorAll(SELECTOR_INLINE_POKEMON);
+    return inlinePokemonsNodes;
+  }
+
+  getInlinePokemonNumber(inlinePokemonNode) {
+    const attributeWithPokemonNumber = inlinePokemonNode.getAttribute('onclick') || '';
+    const numberRegExpResult = attributeWithPokemonNumber.match(/'(\d+)'/); // onclick="Exp.Dex_poke('109', 1)"
+    const number = numberRegExpResult != null ? this.getPokemonNumberString(numberRegExpResult[1]) : 0;
+
     return number;
   }
 
-    /* inline pokemons */
+  isInlinePokemonShine(inlinePokemonNode) {
+    const attributeWithIsShineInfo = inlinePokemonNode.getAttribute('onclick');
+    const shineRegExpResult = attributeWithIsShineInfo.match(/\('(\d+)',[^\d]*?(\d+)\)/);  // onclick="Exp.Dex_poke('109', 1)"
+    const isShine = +shineRegExpResult[2] === 1;
 
-  getInlinePokemons() {
-    let inlinePokemons = document.querySelectorAll( '.intextpoke:not([data-changed])' );
-    return inlinePokemons;
-  }
-
-  getInlinePokemonNumber( inlinePokemon ) {
-    let stringWithNumber = inlinePokemon.getAttribute('onclick');
-    stringWithNumber = stringWithNumber ? stringWithNumber : '';
-    stringWithNumber = stringWithNumber.replace(/^.*?'/, '').replace(/'.*/,'');
-    let number = stringWithNumber.match( /\d+/ );
-    number = number != null ? this.getPokemonNumberString(+number[0]) : 0;
-    return number;
-  }
-
-  isShineInlinePokemon( inlinePokemon ) {
-    let stringWithIsShineInfo = inlinePokemon.getAttribute('onclick');
-    let isShine = stringWithIsShineInfo.match( /\d[^\d]*?\)/ )[0];
-    isShine = isShine.match(/\d/);
-    isShine = isShine != null && isShine[0] == 1;
     return isShine;
   }
 
-  changeInlinePokemonImage( inlinePokemon, number, isShine=false ) {
-    let image = this.makeOldGoodPokemonImage( number, isShine );
-    let oldImage = inlinePokemon.querySelector( '.pk' );
-    if( oldImage) oldImage.style.display = 'none';
-    let lastChild = inlinePokemon.lastChild;
-    if( !lastChild ) inlinePokemon.appendChild(image);
-    else inlinePokemon.insertBefore(image, lastChild);
-    image.classList.add('pk');
-    image.style.maxHeight = "2rem";
+  changeInlinePokemonImage(inlinePokemonNode, pokemonNumber, isShine = false) {
+    const realPokemonImage = this.makeOldGoodPokemonImage(pokemonNumber, isShine);
+    const monsterImage = inlinePokemonNode.querySelector(SELECTOR_INLINE_POKEMON_IMAGE);
+    if (monsterImage) {
+      monsterImage.style.display = 'none';
+    }
+    const lastChild = inlinePokemonNode.lastChild;
+    if (!lastChild) {
+      inlinePokemonNode.appendChild(realPokemonImage);
+    } else {
+      inlinePokemonNode.insertBefore(realPokemonImage, lastChild);
+    }
+    realPokemonImage.classList.add('pk');
+    realPokemonImage.style.maxHeight = '2rem';
   }
 
-  changeInlinePokemonName( inlinePokemon, number ) {
-    let name = this.getPokemonNameByNumber( number );
-    let oldNameNode = inlinePokemon.lastChild;
-    oldNameNode.textContent = name;
+  changeInlinePokemonName(inlinePokemonNode, pokemonNumber) {
+    const realPokemonName = this.getPokemonNameByNumber(pokemonNumber);
+    const oldNameNode = inlinePokemonNode.lastChild;
+    oldNameNode.textContent = realPokemonName;
   }
 
-  changeInlinePokemonItemNameAndImage( inlinePokemon ) {
-    let number = this.getInlinePokemonNumber( inlinePokemon );
-    if( !number ) return;
-    let isShine = this.isShineInlinePokemon( inlinePokemon );
-    this.changeInlinePokemonImage( inlinePokemon, number, isShine );
-    this.changeInlinePokemonName( inlinePokemon, number );
-    inlinePokemon.setAttribute( 'data-changed', '' );
+  changeInlinePokemonItemNameAndImage(inlinePokemonNode) {
+    const pokemonNumber = this.getInlinePokemonNumber(inlinePokemonNode);
+    if(!pokemonNumber) {
+      return;
+    }
+    const isShine = this.isInlinePokemonShine(inlinePokemonNode);
+    this.changeInlinePokemonImage(inlinePokemonNode, pokemonNumber, isShine);
+    this.changeInlinePokemonName(inlinePokemonNode, pokemonNumber);
+    inlinePokemonNode.setAttribute(ATTRIBUTE_FLAG_DATA_WAS_CHANGED, '');
   }
 
-  changeInlinePokemonsNamesAndImages( inlinePokemons ) {
-    inlinePokemons.forEach( inlinePokemon=>{
-      this.changeInlinePokemonItemNameAndImage( inlinePokemon );
+  changeInlinePokemonsNamesAndImages(inlinePokemonsNodes) {
+    inlinePokemonsNodes.forEach(inlinePokemonNode => {
+      this.changeInlinePokemonItemNameAndImage(inlinePokemonNode);
     });
   }
 
   changeInlinePokemons() {
-    let inlinePokemons = this.getInlinePokemons();
-    this.changeInlinePokemonsNamesAndImages( inlinePokemons );
+    const inlinePokemonsNodes = this.getInlinePokemonsNodes();
+    this.changeInlinePokemonsNamesAndImages(inlinePokemonsNodes);
   }
 
     /* tiny Cards */
 
-  findAllTinyCards() {
-    let tinyCards = document.querySelectorAll( '.pokemonBoxTiny:not([data-changed])' );
-    return tinyCards;
+  findAllTinyCardsNodes() {
+    return document.querySelectorAll(SELECTOR_TINY_POKEMON_CARDS);
   }
 
-  getTinyCardNumber( tinyCard ) {
-    let oldImage = tinyCard.querySelector('.image');
-    if(!oldImage) return;
-    let number = oldImage.src.match( /\d{3}/ );
-    number = number ? this.getPokemonNumberString(+number[0]) : 0;
-    return number;
+  getTinyCardNumber(tinyCardNode) {
+    const monsterImage = tinyCardNode.querySelector('.image');
+    if (!monsterImage) {
+      return;
+    }
+    const numberRegExpResult = monsterImage.src.match(/\d{3}/);
+    const pokemonNumber = numberRegExpResult ? this.getPokemonNumberString(numberRegExpResult[0]) : 0;
+
+    return pokemonNumber;
   }
 
-  insertImageInTinyCard( tinyCard, image ) {
-    image.classList.add('image');
-    let oldImage = tinyCard.querySelector('.image');
-    if(!oldImage) return;
-    oldImage.style.display = 'none';
-    let parentOldImage = oldImage.parentNode;
-    parentOldImage.insertBefore( image, oldImage );
-    if(!image.parentNode.classList.contains('pokemonBoxTiny'))
-    image.style = 'margin-top: 0; width: 100%; height: 100%;';
+  insertImageInTinyCard(tinyCardNode, realPokemonImage) {
+    realPokemonImage.classList.add('image');
+
+    const monsterImage = tinyCardNode.querySelector('.image');
+    if (!monsterImage) {
+      return;
+    }
+    monsterImage.style.display = 'none';
+
+    const imageParentNode = monsterImage.parentNode;
+    imageParentNode.insertBefore(realPokemonImage, monsterImage);
+    if (!realPokemonImage.parentNode.classList.contains('pokemonBoxTiny')) {
+      realPokemonImage.style = 'margin-top: 0; width: 100%; height: 100%;';
+    }
   }
 
-  changeNameInTinyCard( tinyCard , pokemonNumber ) {
-    let name = this.getPokemonNameByNumber( pokemonNumber );
-    let nameDiv = tinyCard.querySelector('.name');
-    if(!nameDiv) return;
-    nameDiv = Array.from(nameDiv.childNodes).find(child => child.nodeType == 3 && child.textContent.match(/#\d+/));
-    nameDiv.textContent = `#${pokemonNumber} ${name}`;
+  changeNameInTinyCard(tinyCardNode, pokemonNumber) {
+    const pokemonName = this.getPokemonNameByNumber(pokemonNumber);
+    const nameNode = tinyCardNode.querySelector('.name');
+    if (!nameNode) {
+      return;
+    }
+    const nameTextNode = Array.from(nameNode.childNodes).find(child => child.nodeType == 3 && child.textContent.match(/#\d+/));
+    nameTextNode.textContent = `#${pokemonNumber} ${pokemonName}`;
   }
 
-  isTinyCardShine( tinyCard ) {
-    let image = tinyCard.querySelector('.image');
-    let isShine = image.src.match(/shine/);
-    isShine = isShine != null;
-    return isShine;
+  isTinyCardShine(tinyCardNode) {
+    const tinyPokeCardImageNode = tinyCardNode.querySelector('.image');
+    let shineRegExpResult = tinyPokeCardImageNode.src.match(/shine/);
+
+    return shineRegExpResult != null;
   }
 
-  changeTinyCardsImagesAndNames( tinyCards ) {
-    tinyCards.forEach( tinyCard=>{
-      let pokemonNumber = this.getTinyCardNumber(tinyCard);
-      if( !pokemonNumber ) return;
-      let isShine = this.isTinyCardShine( tinyCard );
-      let image = this.makeOldGoodPokemonImage( pokemonNumber, isShine );
-      this.insertImageInTinyCard( tinyCard, image );
-      this.changeNameInTinyCard( tinyCard, pokemonNumber );
-      tinyCard.setAttribute('data-changed','');
+  changeTinyCardsImagesAndNames(tinyCardsNodes) {
+    tinyCardsNodes.forEach(tinyCardNode => {
+      const pokemonNumber = this.getTinyCardNumber(tinyCardNode);
+      if (!pokemonNumber) {
+        return;
+      }
+      const isShine = this.isTinyCardShine(tinyCardNode);
+      const image = this.makeOldGoodPokemonImage(pokemonNumber, isShine);
+      this.insertImageInTinyCard(tinyCardNode, image);
+      this.changeNameInTinyCard(tinyCardNode, pokemonNumber);
+      tinyCardNode.setAttribute(ATTRIBUTE_FLAG_DATA_WAS_CHANGED, '');
     });
   }
 
   changeTinyCards() {
-    let tinyCards = this.findAllTinyCards();
-    this.changeTinyCardsImagesAndNames( tinyCards );
+    const tinyCardsNodes = this.findAllTinyCardsNodes();
+    this.changeTinyCardsImagesAndNames(tinyCardsNodes);
   }
 
     /* pokemon Cards */
 
-  isPokemonInCardShine( pokemonCard ) {
-    let pokemonImage = pokemonCard.querySelector('.image > img');
-    if( !pokemonImage ) return false;
-    let isShine = pokemonImage.src.match( /shine/ );
-    isShine = isShine != null;
+  isPokemonInCardShine(pokemonCardNode) {
+    const pokemonImageNode = pokemonCardNode.querySelector('.image > img');
+    if (!pokemonImageNode) {
+      return false;
+    }
+    const isShine = !!pokemonImageNode.src.match(/shine/);
+
 		return isShine;
   }
 
-	getPokemonNumberForCards( pokemonBoxCard ) {
-    let pokemonImage = pokemonBoxCard.querySelector('.image > img');
-    if( !pokemonImage ) return 0;
-    let number = pokemonImage.src.match(/\d{3}/);
-    number = number ? this.getPokemonNumberString(+number[0]) : 0;
-		return number;
+	getPokemonNumberForCards(pokemonBoxCardNode) {
+    const pokemonImageNode = pokemonBoxCardNode.querySelector('.image > img');
+    if (!pokemonImageNode) {
+      return 0;
+    }
+
+    const numberRegExpResult = pokemonImageNode.src.match(/\d{3}/);
+    const pokemonNumber = numberRegExpResult ? this.getPokemonNumberString(numberRegExpResult[0]) : 0;
+
+		return pokemonNumber;
   }
 
   findAllPokemonsInCards() {
-		let pokemons = document.querySelectorAll('.pokemonBoxCard:not([data-changed])');
-		return pokemons;
+    return document.querySelectorAll(SELECTOR_POKEMON_CARDS);
 	}
 
-	makeOldGoodPokemonImage( number, isShine=false ) {
-		let image = new Image();
-		image.src = this.getOldGoodPokemonImageSrc( number, isShine );
-		image.classList.add( 'leagueHelper__pokemon-image' );
+	makeOldGoodPokemonImage(pokemonNumber, isShine = false) {
+		const image = new Image();
+		image.src = this.getOldGoodPokemonImageSrc(pokemonNumber, isShine);
+    image.classList.add('leagueHelper__pokemon-image');
+
 		return image;
 	}
 
-	insertOldGoodPokemonImageForCards( pokemonBoxCard, pokemonImage ) {
-    let pokemonImageDiv = pokemonBoxCard.querySelector('.image');
-    if(!pokemonImageDiv) return;
-		pokemonImageDiv.appendChild( pokemonImage );
+	insertOldGoodPokemonImageForCards(pokemonBoxCardNode, pokemonImage) {
+    const pokemonImageWrapperNode = pokemonBoxCardNode.querySelector('.image');
+    if (!pokemonImageWrapperNode) {
+      return;
+    }
+		pokemonImageWrapperNode.appendChild(pokemonImage);
 	}
 
-	hideOldNonameImageForCards( pokemonBoxCard ) {
-    let pokemonImage = pokemonBoxCard.querySelector('.image > img');
-    if(!pokemonImage) return;
-		pokemonImage.style.display = 'none';
+	hideOldNonameImageForCards(pokemonBoxCardNode) {
+    const pokemonImageNode = pokemonBoxCardNode.querySelector('.image > img');
+    if (!pokemonImageNode) {
+      return;
+    }
+		pokemonImageNode.style.display = 'none';
   }
 
-  changePokemonNameInCard( pokemonCard, name ) {
-    let title = pokemonCard.querySelector('.title > .name');
-    if(!title) return;
-    title.innerHTML = name;
-    if( pokemonCard.getAttribute('data-nameWatcher') != null  ) return;
-    pokemonCard.addEventListener('click',()=>{if(title.innerHTML != name)title.innerHTML=name;});
-    pokemonCard.setAttribute('data-nameWatcher','');
+  changePokemonNameInCard(pokemonCardNode, pokemonName) {
+    const pokeTitleNode = pokemonCardNode.querySelector('.title > .name');
+    if (!pokeTitleNode) {
+      return;
+    }
+    pokeTitleNode.innerHTML = pokemonName;
+    if (pokemonCardNode.getAttribute('data-name-watcher') !== null) {
+      return;
+    }
+    pokemonCardNode.addEventListener(
+      'click',
+      () => {
+        if (pokeTitleNode.innerHTML !== pokemonName) {
+          pokeTitleNode.innerHTML = pokemonName;
+        }
+      }
+    );
+    pokemonCardNode.setAttribute('data-name-watcher', '');
   }
 
-	showRealPokemonsForCards( pokemonsCards ) {
-		pokemonsCards.forEach( pokemonCard => {
-      let pokNumber = this.getPokemonNumberForCards( pokemonCard );
-      if( !pokNumber ) return;
-      if( !Number.isInteger( +pokNumber ) ) return;
-      if( this.isComparasionAlreadyDidForCards(pokemonCard) ) return;
-      let isShine = this.isPokemonInCardShine( pokemonCard );
-      let image = this.makeOldGoodPokemonImage( pokNumber, isShine );
-      this.hideOldNonameImageForCards( pokemonCard );
-      this.insertOldGoodPokemonImageForCards( pokemonCard, image );
-      let pokemonName = this.getPokemonNameByNumber( pokNumber );
-      this.changePokemonNameInCard( pokemonCard, pokemonName );
-      pokemonCard.setAttribute('data-changed','');
+	showRealPokemonsForCards(pokemonsCardsNodes) {
+		pokemonsCardsNodes.forEach(pokemonCardNode => {
+      const pokemonNumber = this.getPokemonNumberForCards(pokemonCardNode);
+      if (!pokemonNumber ||
+        !Number.isInteger(+pokemonNumber) ||
+        this.isComparasionAlreadyDidForCards(pokemonCardNode)) {
+        return;
+      }
+      const isShine = this.isPokemonInCardShine(pokemonCardNode);
+      const realPokemonImage = this.makeOldGoodPokemonImage(pokemonNumber, isShine);
+      this.hideOldNonameImageForCards(pokemonCardNode);
+      this.insertOldGoodPokemonImageForCards(pokemonCardNode, realPokemonImage);
+      const pokemonName = this.getPokemonNameByNumber(pokemonNumber);
+      this.changePokemonNameInCard(pokemonCardNode, pokemonName);
+      pokemonCardNode.setAttribute(ATTRIBUTE_FLAG_DATA_WAS_CHANGED,'');
 		});
   }
 
-	isComparasionAlreadyDidForCards( pokemonBoxCard ) {
-		let pokemonImages = pokemonBoxCard.querySelectorAll('.image > img');
-		if( pokemonImages.length > 1 ) return true;
-		return false;
+	isComparasionAlreadyDidForCards(pokemonBoxCardNode) {
+    const pokemonImagesNodes = pokemonBoxCardNode.querySelectorAll('.image > img');
+
+		return pokemonImagesNodes.length > 1;
   }
 
   changeAllPokemonCards() {
-    let pokemonsCards = this.findAllPokemonsInCards();
-    this.showRealPokemonsForCards( pokemonsCards );
+    const pokemonsCardsNodes = this.findAllPokemonsInCards();
+    this.showRealPokemonsForCards(pokemonsCardsNodes);
   }
 
     /* search in pokedex */
 
   findPokemonInPokedex() {
-    let divWithImage = document.querySelector( '#divPokedex .imagebox' );
-    if( divWithImage == null ) return null;
-    if ( divWithImage.getAttribute( 'data-changed' ) != null ) return null;
-    return divWithImage;
+    const pokedexImageNode = document.querySelector(SELECTOR_POKEDEX_POKEMON_CARD);
+    if (pokedexImageNode === null ||
+        pokedexImageNode.getAttribute(ATTRIBUTE_FLAG_DATA_WAS_CHANGED) !== null) {
+      return null;
+    }
+
+    return pokedexImageNode;
   }
 
-  getPokemonNumberInPokedex( pokemonImageBox ) {
-    let number = pokemonImageBox.style.backgroundImage.match( /\d{3}/ );
-    number = number ? this.getPokemonNumberString(+number[0]) : 0;
+  getPokemonNumberInPokedex(pokemonImageBoxNode) {
+    const numberRegExpResult = pokemonImageBoxNode.style.backgroundImage.match(/\d{3}/);
+    const number = numberRegExpResult ? this.getPokemonNumberString(+numberRegExpResult[0]) : 0;
+
     return number;
   }
 
-  changePokedexTitle( pokemonNumber ) {
-    let pokedexTitle = document.querySelector( '#divPokedex .params > .title' );
-    if( pokedexTitle == null ) return;
-    let pokemonName = this.getPokemonNameByNumber(pokemonNumber);
-    pokedexTitle.innerHTML = `#${pokemonNumber} ${pokemonName}`;
+  changePokedexTitle(pokemonNumber) {
+    const pokedexTitleNode = document.querySelector(SELECTOR_POKEDEX_POKEMON_TITLE);
+    if (pokedexTitleNode === null) {
+      return;
+    }
+    const pokemonName = this.getPokemonNameByNumber(pokemonNumber);
+    pokedexTitleNode.innerHTML = `#${pokemonNumber} ${pokemonName}`;
   }
 
-  isShineInPokedex( divWithImage ) {
-    let isShine = divWithImage.style.backgroundImage.match( /shine/ );
-    isShine = isShine != null;
-    return isShine;
+  isShineInPokedex(pokemonImageNode) {
+    return !!pokemonImageNode.style.backgroundImage.match(/shine/);
   }
 
   changePokedex() {
-    let imageDiv = this.findPokemonInPokedex();
-    if( imageDiv == null ) return;
+    const pokemonImageNode = this.findPokemonInPokedex();
+    if (pokemonImageNode === null) {
+      return;
+    }
 
-    let pokemonNumber = this.getPokemonNumberInPokedex( imageDiv );
-    if(!pokemonNumber) return;
-    let isShine = this.isShineInPokedex( imageDiv );
-    let realImageUrl = this.getOldGoodPokemonImageSrc( pokemonNumber, isShine );
-    imageDiv.style.backgroundImage = `url("${realImageUrl}")`;
-    imageDiv.style.backgroundSize = `100% 100%`;
-    imageDiv.setAttribute( 'data-changed', '' );
+    const pokemonNumber = this.getPokemonNumberInPokedex(pokemonImageNode);
+    if (!pokemonNumber) {
+      return;
+    }
+    const isShine = this.isShineInPokedex(pokemonImageNode);
+    const realPokemonImageUrl = this.getOldGoodPokemonImageSrc(pokemonNumber, isShine);
+    pokemonImageNode.style.backgroundImage = `url("${realPokemonImageUrl}")`;
+    pokemonImageNode.style.backgroundSize = `100% 100%`;
+    pokemonImageNode.setAttribute(ATTRIBUTE_FLAG_DATA_WAS_CHANGED, '');
 
-    this.changePokedexTitle( pokemonNumber );
+    this.changePokedexTitle(pokemonNumber);
   }
 
     /* main func */
