@@ -1,0 +1,1 @@
+export const ALARM_SOUND_PATH = 'audio/signal.ogx';

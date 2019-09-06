@@ -9,7 +9,7 @@ import SettingsView from './SettingsContainer';
 import setRequestsHook from './Inject/RequestsHook';
 import spillGlobalVars from './Inject/TKeyGetter';
 import CookieMaker from './CookieMaker';
-import Alarm from './Alarm';
+import Alarm from './Alarm/Alarm';
 
 let lifesCounter = 0;
 
@@ -23,22 +23,24 @@ class Killer {
 
   init() {
     this.alarm = new Alarm();
-    this.settingsParametres  = ['forbiddennumbers', 'waytoheal', 'showpokemons', 'autoheal',
+    this.settingsParametres  = [
+      'forbiddennumbers', 'waytoheal', 'showpokemons', 'autoheal',
       'showiv', 'controlhp', 'controlexp', 'autocatch', 'autocatchsettings',
-      'alarmsrc', 'alarmswitch', 'alarmvolume'];
-    let killerView = new KillerContainer();
-    let settingsView = new SettingsView();
+      'alarmsrc', 'alarmswitch', 'alarmvolume'
+    ];
+    const killerView = new KillerContainer();
+    const settingsView = new SettingsView();
 
-    let commonHeart = new CommonHeart();
-    let killerHeart = new KillerHeart();
-    let healerHeart = new HealerHeart();
-    let catcherHeart = new CatcherHeart();
-    let travellerHeart = new TravellerHeart();
-    let travellerTentacle = new TravellerTentacle();
+    const commonHeart = new CommonHeart();
+    const killerHeart = new KillerHeart();
+    const healerHeart = new HealerHeart();
+    const catcherHeart = new CatcherHeart();
+    const travellerHeart = new TravellerHeart();
+    const travellerTentacle = new TravellerTentacle();
 
     this.settings = {
       'autofight': false,
-      'attack': [0,0,0,0],
+      'attack': [ 0, 0, 0, 0 ],
       'forbiddennumbers': '',
       'showpokemons': true,
       'autoheal': true,
@@ -70,9 +72,9 @@ class Killer {
     this.loadSettings();
     this.updateViews(this.settings);
 
-    document.addEventListener('keyup', (evt)=>{
+    document.addEventListener('keyup', evt => {
       if(evt.ctrlKey && evt.shiftKey) {
-        if(evt.key == 'H' || evt.key == 'Р') {
+        if(evt.key == 'H' || evt.key == 'Р') { // P is russian letter
           this.toggleVisionMainContainer();
         }
       }
@@ -80,19 +82,19 @@ class Killer {
   }
 
   setDocumentObserver() {
-    let observer = new MutationObserver(mut => {
+    const observer = new MutationObserver(mut => {
       if(!document.querySelector('#divLocGo .button')) return;
       observer.disconnect();
       this.init();
       setTimeout(_ => this.settings.globalVars = this.getGlobalVars(), 1000);
      });
-    let config = {attributes: true, childList: true, subtree: true};
+    const config = {attributes: true, childList: true, subtree: true};
     observer.observe( document, config );
   }
 
   getGlobalVars() {
-    let hiddenStore = document.querySelector('[data-globalvarsstore]');
-    let globalVars = JSON.parse(hiddenStore.value);
+    const hiddenStore = document.querySelector('[data-globalvarsstore]');
+    const globalVars = JSON.parse(hiddenStore.value);
     return globalVars;
   }
 
@@ -108,7 +110,7 @@ class Killer {
   }
 
   showKilledCounter(value) {
-    let counterView = document.querySelector('[data-view=killedwild]');
+    const counterView = document.querySelector('[data-view=killedwild]');
     counterView.value = value ? value : 0;
   }
 
@@ -117,7 +119,7 @@ class Killer {
 
     this.showKilledCounter(this.killedCounter);
 
-    let randomTimeInterval = (Math.random()*5+2)*1000;
+    const randomTimeInterval = (Math.random()*5+2)*1000;
     return Promise.resolve(blood)
       .then(this.commonHeart.nextPulse)
       .then(this.killerHeart.nextPulse)
@@ -129,13 +131,16 @@ class Killer {
   }
 
   toggleVisionMainContainer() {
-    let killerView = this.killerView.getMainContainerElement();
-    if(killerView.style.display != 'none') killerView.style.display = 'none';
-    else killerView.style.display = 'block';
+    const killerView = this.killerView.getMainContainerElement();
+    if (killerView.style.display != 'none') {
+      killerView.style.display = 'none';
+    } else {
+      killerView.style.display = 'block';
+    }
   }
 
   toggleVisionSettingsView() {
-    let settingsView = this.settingsView.getMainContainerElement();
+    const settingsView = this.settingsView.getMainContainerElement();
     if(settingsView.style.display != 'none') settingsView.style.display = 'none';
     else settingsView.style.display = 'block';
   }
@@ -166,7 +171,7 @@ class Killer {
   }
 
   setSettingsViewListeners() {
-    let parametres = this.settingsParametres;
+    const parametres = this.settingsParametres;
     parametres.forEach(parameter => {
       this.settingsView.setChangeListener(parameter, (newValue) => {
         this.changeSettings({
@@ -178,7 +183,7 @@ class Killer {
   }
 
   changeSettings(newPartOfSettings={}) {
-    let newSettings = {...this.settings};
+    const newSettings = { ...this.settings };
     switch(newPartOfSettings.parameter) {
       case 'autofight':
       case 'forbiddennumbers':
@@ -200,12 +205,12 @@ class Killer {
         if(newPartOfSettings.parameter == 'alarmsrc') this.alarm.changeMelody(newSettings.alarmsrc);
       break;
       case 'attack':
-        let attackNumber = newPartOfSettings.number;
+        const attackNumber = newPartOfSettings.number;
         newSettings.attack[attackNumber] = newPartOfSettings.value ? 1 : 0;
       break;
     }
 
-    let oldAutofightStatus = this.settings.autofight;
+    const oldAutofightStatus = this.settings.autofight;
     this.settings = {...newSettings};
     this.killerHeart.setSettings(this.settings);
     this.commonHeart.setSettings(this.settings);
@@ -219,12 +224,12 @@ class Killer {
   }
 
   updateViews(settings) {
-    let attackCheckboxes = document.querySelectorAll('[data-changeaction=attack] > input');
+    const attackCheckboxes = document.querySelectorAll('[data-changeaction=attack] > input');
     attackCheckboxes.forEach((checkbox, index) => {
       checkbox.checked = !!settings.attack[index];
     });
 
-    let parametres = this.settingsParametres;
+    const parametres = this.settingsParametres;
     let settingsInput;
     parametres.forEach(parameter => {
       switch(parameter) {
@@ -254,7 +259,7 @@ class Killer {
   }
 
   saveSettings() {
-    let settingsToSave = JSON.stringify(this.getSettingsToSave());
+    const settingsToSave = JSON.stringify(this.getSettingsToSave());
     window.localStorage.setItem('killerSettings', settingsToSave);
   }
 
@@ -262,19 +267,19 @@ class Killer {
     let loadedSettings = window.localStorage.getItem('killerSettings');
     if(!loadedSettings) return;
     loadedSettings = JSON.parse(loadedSettings);
-    let parametres = this.settingsParametres;
+    const parametres = this.settingsParametres;
     parametres.forEach(parameter => {
-      let value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
+      const value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
       this.changeSettings({parameter: parameter, value: value});
     });
     this.settings.attack = loadedSettings.attack;
   }
 
   getSettingsToSave() {
-    let parametres = this.settingsParametres;
-    let settingsToSave = {
+    const parametres = this.settingsParametres;
+    const settingsToSave = {
       'attack': this.settings.attack
-    }
+    };
     parametres.forEach(parameter => {
       settingsToSave[parameter] = this.settings[parameter];
     });
@@ -282,16 +287,16 @@ class Killer {
   }
 
   sendRequest(url, params=[]) {
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append('t_key', this.settings.globalVars.t_key);
     params.forEach(param => {
       formData.append(param.key, param.value);
     });
-    let options = {
+    const options = {
       method: 'POST',
       body: formData,
       credentials: 'include'
-    }
+    };
     //'http://game.league17.ru/do/pokes/load/team'
     return fetch(url, options)
     .then(_ => _.json());

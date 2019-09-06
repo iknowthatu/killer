@@ -2,7 +2,8 @@
   "env": {
     "es6": true,
     "browser": true,
-    "node": true
+    "node": true,
+    "webextensions": true
   },
   "ecmaFeatures": {
     "modules": true
@@ -10,7 +11,9 @@
   "rules": {
     "quotes": [ "error", "single", { "allowTemplateLiterals": true } ],
     "no-undef": "error",
-    "semi": "error"
+    "semi": "error",
+    "prefer-const": "error",
+    "no-const-assign": "error"
   },
   "parserOptions": {
     "ecmaVersion": 2018,
