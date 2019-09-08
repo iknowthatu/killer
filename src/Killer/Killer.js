@@ -105,7 +105,7 @@ class Killer {
 
   wait(seconds, paramToChain) {
     return new Promise(resolve => {
-      setTimeout(_ => resolve(paramToChain), seconds);
+      setTimeout(_ => resolve(paramToChain), seconds * 1000);
     });
   }
 

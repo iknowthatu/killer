@@ -1,5 +1,5 @@
 import PokemonReplacer from './../ImageReplacer';
-import Killer from './../Killer';
+import Killer from './../Killer/Killer.js';
 
 class KillerApp {
   constructor() {
@@ -7,9 +7,9 @@ class KillerApp {
   }
 
   init() {
-    let replacer = new PokemonReplacer();
+    const replacer = new PokemonReplacer();
     console.info('Image replacer was loaded');
-    let killer = new Killer(replacer);
+    const killer = new Killer(replacer);
 		console.info('Killer was loaded');
   }
 }
