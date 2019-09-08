@@ -1,6 +1,5 @@
 import {
-  checkIsFight,
-  turnWildPokemons
+  checkIsFight
 } from '../../Utils/EnvironmentUtils';
 
 class CommonHeart {
