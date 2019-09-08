@@ -1,3 +1,5 @@
+import { turnWildPokemons } from '../../Utils/EnvironmentUtils';
+
 class KillerHeart {
   constructor() {
     this.init();
@@ -56,13 +58,13 @@ class KillerHeart {
       case 4:
         console.log(`Pokemon was killed but enemy was killed too`);
         this.settings.organism.killedCounter++;
-        this.settings.commonHeart.turnWildPokemons(false);
+        turnWildPokemons(false);
         this.settings.commonHeart.closeFightDiv();
         newParams.needHeal = true;
         return newParams;
       case 5:
         console.log(`Pokemon was killed`);
-        this.settings.commonHeart.turnWildPokemons(false);
+        turnWildPokemons(false);
         //this.settings.commonHeart.closeFightDiv();
         newParams.needHeal = true;
         return this.changePokemon().then(_ => newParams);
@@ -77,7 +79,7 @@ class KillerHeart {
     const currentHp = this.getPlayerPokemonCurrentHPpercents();
     const criticalHp = this.settings.controlhp > 20 ? this.settings.controlhp : 20;
     if(currentHp <= criticalHp) {
-      this.settings.commonHeart.turnWildPokemons(false);
+      turnWildPokemons(false);
       newParams.needHeal = true;
     }
 
@@ -107,7 +109,7 @@ class KillerHeart {
     this.repeatAttackCounter = 0;
     if(this.numberOfPermittedAttacksPP() < 2) {
       console.log('PP is over. Need Heal');
-      this.settings.commonHeart.turnWildPokemons(false);
+      turnWildPokemons(false);
       newParams.needHeal = true;
       this.chooseAttack(true);
       return newParams;

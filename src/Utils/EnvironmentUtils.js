@@ -1,6 +1,7 @@
 import {
   SELECTOR_FIGHT_VIEW,
-  SELECTOR_CAPTCHA
+  SELECTOR_CAPTCHA,
+  SELECTOR_INTERFACE_TOGGLE_WILD
 } from '../configs/querySelectors';
 
 function checkIsNodeVisible(node) {
@@ -27,4 +28,15 @@ export function checkIsCaptchaAppears() {
 
   return checkIsNodeVisible(captchaNode) &&
     captchaImage && captchaImage.src !== undefined;
+}
+
+/**
+ *
+ * @param {boolean} newState
+ */
+export function turnWildPokemons(newState) {
+  const turnWildButtonNode = document.querySelector(SELECTOR_INTERFACE_TOGGLE_WILD);
+  if (newState !== turnWildButtonNode.classList.contains('pressed')) {
+    turnWildButtonNode.click();
+  }
 }

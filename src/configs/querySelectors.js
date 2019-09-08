@@ -17,3 +17,5 @@ export const SELECTOR_FIGHT_VIEW = '#divVisioFight';
 export const SELECTOR_CAPTCHA = '#divFightCaptcha';
 export const SELECTOR_FIGHT_STATUS = '#divFightAction';
 export const SELECTOR_FIGHT_DUMMY_POKEMON = '.pokemonBoxDummy';
+
+export const SELECTOR_INTERFACE_TOGGLE_WILD = '#divInputButtons .btnSwitchWilds';

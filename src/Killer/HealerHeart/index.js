@@ -1,3 +1,7 @@
+import {
+  turnWildPokemons
+} from '../../Utils/EnvironmentUtils';
+
 class HealerHeart {
   constructor() {
     this.init();
@@ -28,7 +32,7 @@ class HealerHeart {
       //console.log('we have back to farm place ;)');
       newParams.needHeal = false;
       newParams.needMove = false;
-      this.settings.commonHeart.turnWildPokemons(true);
+      turnWildPokemons(true);
       return newParams;
     }
 

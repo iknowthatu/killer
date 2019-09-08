@@ -1,4 +1,7 @@
-import { checkIsFight } from '../../Utils/EnvironmentUtils';
+import {
+  checkIsFight,
+  turnWildPokemons
+} from '../../Utils/EnvironmentUtils';
 
 class CommonHeart {
   constructor() {
@@ -21,29 +24,31 @@ class CommonHeart {
     return newParams;
   }
 
+  /**
+   * @public
+   * @param {object} settings
+   */
   setSettings(settings = {}) {
     this.settings = settings;
   }
 
   /* game Functions */
-  showLocationIds() {
-    const locationButtons = document.querySelectorAll('#divLocGo > .button');
-    const nextLocationButtons = Array.from(locationButtons)
-      .forEach(locationButton => {
-        if(locationButton.innerHTML.match(/\[id\d+\]/)) return;
-        const btnWrapper = locationButton.outerHTML;
-        const locationId = btnWrapper.match(/btnGo\d+/)[0].replace('btnGo','');
-        locationButton.innerHTML += ` [id${locationId}]`;
-        const contentWidth = locationButton.innerHTML.length*10;
-        if(locationButton.offsetWidth > contentWidth) return;
-        locationButton.style.width = `${contentWidth}px`;
-      });
-  }
+  // showLocationIds() {
+  //   const locationButtons = document.querySelectorAll('#divLocGo > .button');
+  //   const nextLocationButtons = Array.from(locationButtons)
+  //     .forEach(locationButton => {
+  //       if(locationButton.innerHTML.match(/\[id\d+\]/)) return;
+  //       const btnWrapper = locationButton.outerHTML;
+  //       const locationId = btnWrapper.match(/btnGo\d+/)[0].replace('btnGo','');
+  //       locationButton.innerHTML += ` [id${locationId}]`;
+  //       const contentWidth = locationButton.innerHTML.length * 10;
+  //       if(locationButton.offsetWidth > contentWidth) return;
+  //       locationButton.style.width = `${contentWidth}px`;
+  //     });
+  // }
 
   turnWildPokemons(newState) {
-    const buttonsDiv = document.querySelector('#divInputButtons');
-    const turnWildButton = buttonsDiv.querySelector('.btnSwitchWilds');
-    if(newState != turnWildButton.classList.contains('pressed')) turnWildButton.click();
+    return turnWildPokemons(newState);
   }
 
   closeFightDiv() {
@@ -64,10 +69,10 @@ class CommonHeart {
     return pokemonParamPercents;
   }
 
-  turnAutoFight(newState) {
-    const autofightButtonCheckbox = document.querySelector('[data-changeaction=autofight]>input');
-    if(newState != autofightButtonCheckbox.checked) autofightButtonCheckbox.click();
-  }
+  // turnAutoFight(newState) {
+  //   const autofightButtonCheckbox = document.querySelector('[data-changeaction=autofight]>input');
+  //   if(newState != autofightButtonCheckbox.checked) autofightButtonCheckbox.click();
+  // }
 
   checkingIsTeamOpenedAndLoaded() {
     const panelWithTeam = document.querySelector('#divDockMenu .divDockPanels');
