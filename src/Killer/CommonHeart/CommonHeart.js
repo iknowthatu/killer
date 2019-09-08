@@ -1,4 +1,4 @@
-import { checkIsFight } from '../../KillerFSM/EnvironmentUtils';
+import { checkIsFight } from '../../Utils/EnvironmentUtils';
 
 class CommonHeart {
   constructor() {

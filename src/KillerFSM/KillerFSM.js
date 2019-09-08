@@ -6,7 +6,7 @@ import {
 
 import {
   checkIsFight
-} from './EnvironmentUtils';
+} from './../Utils/EnvironmentUtils';
 import KillerContainer from '../Killer/MainContainer';
 
 class KillerFSM extends FSM {
