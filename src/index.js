@@ -1,5 +1,5 @@
-require(`./styles/styles.css`);
+require(`./styles/styles.css`); // @TODO move to gulp task
 
-import App from './App';
+import App from './App/App.js';
 
-let app = new App();
+new App();
