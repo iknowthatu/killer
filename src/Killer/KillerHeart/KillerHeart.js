@@ -1,8 +1,15 @@
 import {
   turnWildPokemons,
   closeFightDiv,
-  getPokemonOpenParameter
+  getPokemonOpenParameter,
+  checkIsCaptchaAppears,
+  getPlayerPokemonCurrentHPpercents,
+  getPlayerPokemonCurrentEXPpercents,
+  getPlayerPokemonAttackPP,
+  getEnemyPokemonNumberAsString
 } from '../../Utils/EnvironmentUtils';
+import { getFightStatus } from '../../KillerFSM/FightUtils';
+import { FIGHT_STATUS_VICTORY, FIGHT_STATUS_FAIL, FIGHT_STATUS_DRAW, FIGHT_STATUS_HARD_DRAW, FIGHT_STATUS_POKEMON_LOST } from '../../configs/killerConfigs';
 
 class KillerHeart {
   constructor() {
@@ -21,13 +28,13 @@ class KillerHeart {
   }
 
   nextPulse(params = {}) {
-    if(!params.isFight) {
+    if (!params.isFight) {
       return params;
     }
 
-    const newParams = {...params};
+    const newParams = { ...params };
 
-    const isCaptcha = this.isCaptchaEnterNeed();
+    const isCaptcha = checkIsCaptchaAppears();
     newParams.isCaptcha = isCaptcha;
     if(isCaptcha) {
       console.log('u should enter captcha');
@@ -43,30 +50,30 @@ class KillerHeart {
     this.switchAlarm(false);
 
     const numberOfPermittedAttacks = this.getNumberOfPermittedAttacks();
-    if(!numberOfPermittedAttacks) {
+    if (!numberOfPermittedAttacks) {
       //console.log('no permitted attacks');
       return newParams;
     };
 
     newParams.killedCounter = newParams.killedCounter ? newParams.killedCounter : 0;
-    const fightStatus = this.getFightStatus();
-    switch(fightStatus) {
-      case 1: case 2: case 3:
-        if(fightStatus == 2) this.settings.organism.killedCounter++;
+    const fightStatus = getFightStatus();
+    switch (fightStatus) {
+      case FIGHT_STATUS_VICTORY: case FIGHT_STATUS_FAIL: case FIGHT_STATUS_DRAW:
+        if(fightStatus === FIGHT_STATUS_VICTORY) this.settings.organism.killedCounter++;
         if(newParams.needCatch && newParams.catchParams) {
           newParams.catchParams.catched = this.settings.catcherHeart.isPokemonWasCaught();
           newParams.catchParams.phase = 7;
         }
         closeFightDiv();
         return newParams;
-      case 4:
+      case FIGHT_STATUS_HARD_DRAW:
         console.log(`Pokemon was killed but enemy was killed too`);
         this.settings.organism.killedCounter++;
         turnWildPokemons(false);
         closeFightDiv();
         newParams.needHeal = true;
         return newParams;
-      case 5:
+      case FIGHT_STATUS_POKEMON_LOST:
         console.log(`Pokemon was killed`);
         turnWildPokemons(false);
         // closeFightDiv();
@@ -74,20 +81,20 @@ class KillerHeart {
         return this.changePokemon().then(_ => newParams);
     }
 
-    if(this.settings.controlexp && !isNaN(this.settings.controlexp)) {
-      const currentExp = this.getPlayerPokemonCurrentEXPpercents();
+    if (this.settings.controlexp && !isNaN(this.settings.controlexp)) {
+      const currentExp = getPlayerPokemonCurrentEXPpercents();
       const criticalExp = this.settings.controlexp > 90 ? this.settings.controlexp : 90;
       if(currentExp >= criticalExp) return;
     }
 
-    const currentHp = this.getPlayerPokemonCurrentHPpercents();
+    const currentHp = getPlayerPokemonCurrentHPpercents();
     const criticalHp = this.settings.controlhp > 20 ? this.settings.controlhp : 20;
     if(currentHp <= criticalHp) {
       turnWildPokemons(false);
       newParams.needHeal = true;
     }
 
-    const enemyPokemonNumber = this.getEnemyPokemonNumberAsString();
+    const enemyPokemonNumber = getEnemyPokemonNumberAsString();
     newParams.lastPokemonNumber = enemyPokemonNumber;
     if( this.isAttackForbiddenForThisNumber() &&
         (this.settings.catcherHeart.isPokemonCanBeCaught() ||
@@ -124,45 +131,18 @@ class KillerHeart {
   }
 
   /* fight actions & parametres */
-
-  isCaptchaEnterNeed() {
-    const captchaDiv = document.querySelector('#divFightCaptcha');
-    const captchaImage = captchaDiv.querySelector('img');
-    if(captchaDiv.style.display == 'none' ||
-        !captchaImage ||
-        captchaImage.src == undefined)
-      return 0; // there is no captcha form
-    return 1; // oops, it wants captcha
-  }
-
-  getFightStatus() {
-    const fightStatusText = document.querySelector('#divFightAction').innerHTML;
-    if(fightStatusText.match(/ничья/i)) return 1; // draw
-    if(fightStatusText.match(/вы победили/i)) return 2; // victory
-    if(fightStatusText.match(/вы проиграли/i)) return 3; // lose
-
-    const dummyInsteadPlayerPokemon = document.querySelector('#divFightI .pokemonBoxDummy');
-    const dummyInsteadEnemyPokemon = document.querySelector('#divFightH .pokemonBoxDummy');
-    if(dummyInsteadPlayerPokemon && dummyInsteadEnemyPokemon) return 4;
-    //pokemon was killed/changed but u can close window
-    if(dummyInsteadPlayerPokemon && !dummyInsteadEnemyPokemon) return 5;
-    //pokemon was killed/changed but u can get another
-
-    return 0; // it's okay, fight is continuing
-  }
-
   getNumberOfPermittedAttacks() {
-    return this.settings.attack.filter(attack=>attack==1).length;
+    return this.settings.attack.filter(attack => attack === 1).length;
   }
 
-  getWeather() {
-    const weatherDiv = document.querySelector('#divFightWeather');
-    const hail = weatherDiv.querySelector('.w3');
-    if(hail) return 1; // hail
-    const sandstorm = weatherDiv.querySelector('.w4');
-    if(sandstorm) return 2; //sandstorm
-    return 0; // sun/rain etc
-  }
+  // getWeather() {
+  //   const weatherDiv = document.querySelector('#divFightWeather');
+  //   const hail = weatherDiv.querySelector('.w3');
+  //   if(hail) return 1; // hail
+  //   const sandstorm = weatherDiv.querySelector('.w4');
+  //   if(sandstorm) return 2; //sandstorm
+  //   return 0; // sun/rain etc
+  // }
 
   chooseAttack(lastTry) {
     if(!this.getNumberOfPermittedAttacks()) return;
@@ -179,7 +159,7 @@ class KillerHeart {
 
   clickAttack(attackNumber, lastTry) {
     if(attackNumber > 3 || attackNumber < 0) return false;
-    if(this.getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) return false;
+    if(getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) return false;
     const moveBox = document.querySelectorAll('#divFightI .moveBox')[attackNumber];
     if(!moveBox) return false;
     if(!moveBox.querySelector('.divMove')) return false;
@@ -215,51 +195,29 @@ class KillerHeart {
   }
 
   /* infight parametres & actions with player pokemon */
-
-  getPlayerPokemonCurrentHPpercents() {
-    return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'hp' });
-  }
-
-  getPlayerPokemonCurrentEXPpercents() {
-    return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'exp' });
-  }
-
-  getPlayerPokemonAttackPP(attackNumber) {
-    if(attackNumber > 3 || attackNumber < 0) return false;
-    const stringWithPP = document.querySelectorAll('#divFightI .divMoveParams')[attackNumber].innerHTML;
-    const currentPPValue = +stringWithPP.replace(/\/\d+/,'');
-    return currentPPValue;
-  }
-
   numberOfPermittedAttacksPP() {
-    const sumOfAllPermittedAttacksPP =
-      this.settings.attack.reduce((sum, attackPermission, index) => {
-        if(!attackPermission) return sum;
-        return sum + this.getPlayerPokemonAttackPP(index);
+    return this.settings.attack.reduce((sum, attackPermission, index) => {
+        if (!attackPermission) {
+          return sum;
+        }
+
+        return sum + getPlayerPokemonAttackPP(index);
       }, 0);
-    return sumOfAllPermittedAttacksPP;
   }
 
   /* infight parametres & actions with enemy pokemon */
 
-  isEnemyCanBeCaught() {
-    const noCatch = document.querySelector('#divFightOptions .nocatch');
-    return noCatch != null;
-  }
+  // isEnemyCanBeCaught() {
+  //   const noCatch = document.querySelector('#divFightOptions .nocatch');
+  //   return noCatch != null;
+  // }
 
-  getEnemyPokemonNumberAsString() {
-    const enemyImage = document.querySelector('#divFightH .image > img');
-    if(!enemyImage) return 0;
-    const enemyNumber = enemyImage.src.match(/\d{3}/)[0];
-    return enemyNumber;
-  }
-
-  getEnemyLevel() {
-    const enemyLevelDiv = document.querySelector('#divFightH .lvl');
-    if(!enemyLevelDiv) return 0;
-    const enemyLevel = +enemyLevel.innerHTML;
-    return enemyLevel;
-  }
+  // getEnemyLevel() {
+  //   const enemyLevelDiv = document.querySelector('#divFightH .lvl');
+  //   if(!enemyLevelDiv) return 0;
+  //   const enemyLevel = +enemyLevel.innerHTML;
+  //   return enemyLevel;
+  // }
 
   isEnemyNormal() {
     const enemyRankDiv = document.querySelector('#divFightH .rank');
@@ -279,7 +237,7 @@ class KillerHeart {
   }
 
   isAttackForbiddenForThisNumber() {
-    const currentNumber = this.getEnemyPokemonNumberAsString();
+    const currentNumber = getEnemyPokemonNumberAsString();
     const forbiddenNumbers = this.settings.forbiddennumbers.match(/\d{1,3};?/g);
     if(!forbiddenNumbers) return false;
     return forbiddenNumbers.some(number => +currentNumber == +(number.replace(';','')));

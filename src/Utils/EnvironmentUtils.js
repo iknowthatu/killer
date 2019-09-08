@@ -5,7 +5,9 @@ import {
   SELECTOR_FIGHT_PLAYER_POKEMON_MOVES,
   SELECTOR_FIGHT_PLAYER_ACTION_BUTTON,
   SELECTOR_FIGHT_POKEMON_PANEL_PLAYER,
-  SELECTOR_FIGHT_POKEMON_PANEL_ENEMY
+  SELECTOR_FIGHT_POKEMON_PANEL_ENEMY,
+  SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_PARAMS,
+  SELECTOR_FIGHT_ENEMY_POKEMON_IMAGE
 } from '../configs/querySelectors';
 
 /**
@@ -100,4 +102,49 @@ export function getPokemonOpenParameter(options = {}) {
     .style.width.replace('%', '');
 
   return pokemonParameterPercentes;
+}
+
+/**
+ * @returns {number}
+ */
+export function getPlayerPokemonCurrentHPpercents() {
+  return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'hp' });
+}
+
+/**
+ * @returns {number}
+ */
+export function getPlayerPokemonCurrentEXPpercents() {
+  return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'exp' });
+}
+
+/**
+ *
+ * @param {number} attackNumber
+ * @returns {number}
+ */
+export function getPlayerPokemonAttackPP(attackNumber) {
+  if (attackNumber > 3 || attackNumber < 0) {
+    return false;
+  }
+
+  const stringWithPP = document.querySelectorAll(SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_PARAMS)[attackNumber].innerHTML;
+  const currentPPValue = parseInt(stringWithPP.replace(/\/\d+/, ''));
+
+  return currentPPValue;
+}
+
+/**
+ * get enemy pokemon number
+ * @returns {string}
+ */
+export function getEnemyPokemonNumberAsString() {
+  const enemyPokemonImageNode = document.querySelector(SELECTOR_FIGHT_ENEMY_POKEMON_IMAGE);
+  if (!enemyPokemonImageNode) {
+    return 0;
+  }
+
+  const enemyNumber = enemyPokemonImageNode.src.match(/\d{3}/)[0];
+
+  return enemyNumber;
 }
