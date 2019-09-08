@@ -47,10 +47,6 @@ class CommonHeart {
   //     });
   // }
 
-  turnWildPokemons(newState) {
-    return turnWildPokemons(newState);
-  }
-
   closeFightDiv() {
     const movesDiv = document.querySelector('#divFightI .moves');
     const closeButton = document.querySelectorAll('#divFightButtons .button');

@@ -1,4 +1,4 @@
-import { turnWildPokemons } from '../../Utils/EnvironmentUtils';
+import { turnWildPokemons, closeFightDiv } from '../../Utils/EnvironmentUtils';
 
 class KillerHeart {
   constructor() {
@@ -53,19 +53,19 @@ class KillerHeart {
           newParams.catchParams.catched = this.settings.catcherHeart.isPokemonWasCaught();
           newParams.catchParams.phase = 7;
         }
-        this.settings.commonHeart.closeFightDiv();
+        closeFightDiv();
         return newParams;
       case 4:
         console.log(`Pokemon was killed but enemy was killed too`);
         this.settings.organism.killedCounter++;
         turnWildPokemons(false);
-        this.settings.commonHeart.closeFightDiv();
+        closeFightDiv();
         newParams.needHeal = true;
         return newParams;
       case 5:
         console.log(`Pokemon was killed`);
         turnWildPokemons(false);
-        //this.settings.commonHeart.closeFightDiv();
+        // closeFightDiv();
         newParams.needHeal = true;
         return this.changePokemon().then(_ => newParams);
     }
