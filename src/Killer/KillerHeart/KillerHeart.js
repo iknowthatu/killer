@@ -1,4 +1,8 @@
-import { turnWildPokemons, closeFightDiv, getPokemonOpenParameter } from '../../Utils/EnvironmentUtils';
+import {
+  turnWildPokemons,
+  closeFightDiv,
+  getPokemonOpenParameter
+} from '../../Utils/EnvironmentUtils';
 
 class KillerHeart {
   constructor() {

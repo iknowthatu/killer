@@ -1,6 +1,6 @@
 import KillerContainer from './MainContainer';
 import CommonHeart from './CommonHeart/CommonHeart.js';
-import KillerHeart from './KillerHeart';
+import KillerHeart from './KillerHeart/KillerHeart.js';
 import HealerHeart from './HealerHeart';
 import CatcherHeart from './CatcherHeart';
 import TravellerHeart from './TravellerHeart';
