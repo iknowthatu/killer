@@ -1,5 +1,5 @@
 import KillerContainer from './MainContainer';
-import CommonHeart from './CommonHeart';
+import CommonHeart from './CommonHeart/CommonHeart.js';
 import KillerHeart from './KillerHeart';
 import HealerHeart from './HealerHeart';
 import CatcherHeart from './CatcherHeart';
@@ -82,19 +82,23 @@ class Killer {
   }
 
   setDocumentObserver() {
-    const observer = new MutationObserver(mut => {
-      if(!document.querySelector('#divLocGo .button')) return;
+    const observer = new MutationObserver(() => {
+      if (!document.querySelector('#divLocGo .button')) {
+        return;
+      }
+
       observer.disconnect();
       this.init();
-      setTimeout(_ => this.settings.globalVars = this.getGlobalVars(), 1000);
-     });
-    const config = {attributes: true, childList: true, subtree: true};
-    observer.observe( document, config );
+      setTimeout(() => this.settings.globalVars = this.getGlobalVars(), 1000);
+    });
+    const config = { attributes: true, childList: true, subtree: true };
+    observer.observe(document, config);
   }
 
   getGlobalVars() {
     const hiddenStore = document.querySelector('[data-globalvarsstore]');
     const globalVars = JSON.parse(hiddenStore.value);
+
     return globalVars;
   }
 
@@ -298,23 +302,26 @@ class Killer {
     parametres.forEach(parameter => {
       settingsToSave[parameter] = this.settings[parameter];
     });
+
     return settingsToSave;
   }
 
-  sendRequest(url, params=[]) {
+  sendRequest(url, params = []) {
     const formData = new FormData();
     formData.append('t_key', this.settings.globalVars.t_key);
     params.forEach(param => {
       formData.append(param.key, param.value);
     });
+
     const options = {
       method: 'POST',
       body: formData,
       credentials: 'include'
     };
+
     //'http://game.league17.ru/do/pokes/load/team'
     return fetch(url, options)
-    .then(_ => _.json());
+      .then(_ => _.json());
   }
 }
 

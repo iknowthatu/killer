@@ -21,7 +21,7 @@ export function checkIsFight() {
  * checks is captcha blocked process
  * @returns {boolean}
  */
-export function checkIsFightIsCaptchaAppears() {
+export function checkIsCaptchaAppears() {
   const captchaNode = document.querySelector(SELECTOR_CAPTCHA);
   const captchaImage = captchaNode.querySelector('img');
 
