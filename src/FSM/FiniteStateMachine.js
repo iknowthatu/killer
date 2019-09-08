@@ -48,10 +48,11 @@ export class FSM {
       throw new Error('No initial state');
     }
 
+    this.currentState.action && await this.currentState.action.call(this);
+
     const transitionToNextState = this.getTransitionToNextState(state);
     if (transitionToNextState) {
       this.currentState = this.getStateByName(transitionToNextState.targetStateName);
-      await this.currentState.action && this.currentState.action.call(this);
     }
   }
 
@@ -61,7 +62,7 @@ export class FSM {
 
   getTransitionToNextState(state) {
     let transitionToNextState;
-    let possibleTransitions = state.transitions
+    const possibleTransitions = state.transitions
       .filter(transition => transition.conditions
         .some(condition => condition.call(this)));
 

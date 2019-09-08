@@ -75,7 +75,7 @@ class Killer {
     document.addEventListener('keyup', evt => {
       if(evt.ctrlKey && evt.shiftKey) {
         if(evt.key == 'H' || evt.key == 'Р') { // P is russian letter
-          this.toggleVisionMainContainer();
+          this.toggleVisibilityMainContainer();
         }
       }
     });
@@ -103,9 +103,9 @@ class Killer {
     this.killerHeartbeat({ life: this.currentKillerLife });
   }
 
-  wait(ms, paramToChain) {
+  wait(seconds, paramToChain) {
     return new Promise(resolve => {
-      setTimeout(_ => resolve(paramToChain), ms);
+      setTimeout(_ => resolve(paramToChain), seconds);
     });
   }
 
@@ -114,12 +114,14 @@ class Killer {
     counterView.value = value ? value : 0;
   }
 
-  killerHeartbeat(blood={}) {
-    if(!this.settings.autofight || this.currentKillerLife !== blood.life) return Promise.resolve(blood);
+  killerHeartbeat(blood = {}) {
+    if (!this.settings.autofight || this.currentKillerLife !== blood.life) {
+      return Promise.resolve(blood);
+    }
 
     this.showKilledCounter(this.killedCounter);
 
-    const randomTimeInterval = (Math.random()*5+2)*1000;
+    const randomTimeInterval = (Math.random()*5 + 2);
     return Promise.resolve(blood)
       .then(this.commonHeart.nextPulse)
       .then(this.killerHeart.nextPulse)
@@ -130,25 +132,26 @@ class Killer {
       .then(blood => this.killerHeartbeat(blood));
   }
 
-  toggleVisionMainContainer() {
-    const killerView = this.killerView.getMainContainerElement();
-    if (killerView.style.display != 'none') {
-      killerView.style.display = 'none';
+  toggleViewNodeVisibility(viewNode) {
+    if (viewNode.style.display !== 'none') {
+      viewNode.style.display = 'none';
     } else {
-      killerView.style.display = 'block';
+      viewNode.style.display = 'block';
     }
   }
 
-  toggleVisionSettingsView() {
-    const settingsView = this.settingsView.getMainContainerElement();
-    if(settingsView.style.display != 'none') settingsView.style.display = 'none';
-    else settingsView.style.display = 'block';
+  toggleVisibilityMainContainer() {
+    this.toggleViewNodeVisibility(this.killerView.getMainContainerElement());
+  }
+
+  toggleVisibilitySettingsView() {
+    this.toggleViewNodeVisibility(this.settingsView.getMainContainerElement());
   }
 
   injectViewsIntoDocument() {
     document.body.appendChild(this.killerView.getMainContainerElement());
     document.body.appendChild(this.settingsView.getMainContainerElement());
-    this.toggleVisionSettingsView();
+    this.toggleVisibilitySettingsView();
   }
 
   setMainViewListeners() {
@@ -163,17 +166,16 @@ class Killer {
       this.changeSettings({
         parameter:'attack',
         value: newState,
-        number: attackNumber-1
+        number: attackNumber - 1
       });
     });
 
-    this.killerView.setSettingsClickListener(_ => this.toggleVisionSettingsView());
+    this.killerView.setSettingsClickListener(_ => this.toggleVisibilitySettingsView());
   }
 
   setSettingsViewListeners() {
-    const parametres = this.settingsParametres;
-    parametres.forEach(parameter => {
-      this.settingsView.setChangeListener(parameter, (newValue) => {
+    this.settingsParametres.forEach(parameter => {
+      this.settingsView.setChangeListener(parameter, newValue => {
         this.changeSettings({
           parameter: parameter,
           value: newValue
@@ -182,9 +184,9 @@ class Killer {
     });
   }
 
-  changeSettings(newPartOfSettings={}) {
+  changeSettings(newPartOfSettings = {}) {
     const newSettings = { ...this.settings };
-    switch(newPartOfSettings.parameter) {
+    switch (newPartOfSettings.parameter) {
       case 'autofight':
       case 'forbiddennumbers':
       case 'waytoheal':
@@ -199,10 +201,21 @@ class Killer {
       case 'alarmvolume':
       case 'alarmswitch':
         newSettings[newPartOfSettings.parameter] = newPartOfSettings.value;
-        if(newPartOfSettings.parameter == 'showpokemons') this.imageReplacer.switchOn(newSettings.showpokemons);
-        if(newPartOfSettings.parameter == 'showiv') this.catcherHeart.setObserverIV(newSettings.showiv);
-        if(newPartOfSettings.parameter == 'alarmvolume') this.alarm.changeVolume(newSettings.alarmvolume);
-        if(newPartOfSettings.parameter == 'alarmsrc') this.alarm.changeMelody(newSettings.alarmsrc);
+        if (newPartOfSettings.parameter == 'showpokemons') {
+          this.imageReplacer.switchOn(newSettings.showpokemons);
+        }
+
+        if (newPartOfSettings.parameter == 'showiv') {
+          this.catcherHeart.setObserverIV(newSettings.showiv);
+        }
+
+        if (newPartOfSettings.parameter == 'alarmvolume') {
+          this.alarm.changeVolume(newSettings.alarmvolume);
+        }
+
+        if (newPartOfSettings.parameter == 'alarmsrc') {
+          this.alarm.changeMelody(newSettings.alarmsrc);
+        }
       break;
       case 'attack':
         const attackNumber = newPartOfSettings.number;
@@ -265,12 +278,14 @@ class Killer {
 
   loadSettings() {
     let loadedSettings = window.localStorage.getItem('killerSettings');
-    if(!loadedSettings) return;
+    if (!loadedSettings) {
+      return;
+    }
     loadedSettings = JSON.parse(loadedSettings);
     const parametres = this.settingsParametres;
     parametres.forEach(parameter => {
-      const value = loadedSettings[parameter] && loadedSettings[parameter] != 'undefined' ? loadedSettings[parameter] : '';
-      this.changeSettings({parameter: parameter, value: value});
+      const value = loadedSettings[parameter] && loadedSettings[parameter] !== 'undefined' ? loadedSettings[parameter] : '';
+      this.changeSettings({ parameter: parameter, value: value });
     });
     this.settings.attack = loadedSettings.attack;
   }

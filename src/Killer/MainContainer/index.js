@@ -1,4 +1,4 @@
-let killerHtml = `<div class="killer__wrapper">
+const killerHtml = `<div class="killer__wrapper">
   <div class="killer__topPanel"></div>
   <div class="killer__controlPanel">
     <label class="killer__controlPanelLabel killer__controlPanelLabel--row" data-changeaction="autofight">
@@ -35,9 +35,10 @@ class KillerContainer {
   }
 
   createView() {
-    let tempDiv = document.createElement('div');
-    tempDiv.innerHTML = killerHtml;
-    return tempDiv.firstChild;
+    const tempWrapperNode = document.createElement('div');
+    tempWrapperNode.innerHTML = killerHtml;
+
+    return tempWrapperNode.firstChild;
   }
 
   init() {
@@ -50,33 +51,37 @@ class KillerContainer {
 
     this.controlPanel.addEventListener(
       'click',
-      (evt)=>{this.controlPanelClickListener(evt);}
+      evt => this.controlPanelClickListener(evt)
     );
   }
 
   createTopPanel() {
-    let topPanel = document.createElement('div');
-      topPanel.classList.add('killerMainContainer__topPanel');
-    return topPanel;
+    const topPanelNode = document.createElement('div');
+    topPanelNode.classList.add('killerMainContainer__topPanel');
+
+    return topPanelNode;
   }
 
   createHiddenInputForGlobalVars() {
-    let hiddenDB = document.createElement('input');
-    hiddenDB.setAttribute('data-globalvarsstore','');
-    hiddenDB.type = 'hidden';
-    return hiddenDB;
+    const hiddenDBNode = document.createElement('input');
+    hiddenDBNode.setAttribute('data-globalvarsstore','');
+    hiddenDBNode.type = 'hidden';
+
+    return hiddenDBNode;
   }
 
   addTopPanelDragListeners() {
-    let panel = this.topPanel;
+    const panel = this.topPanel;
     let moveFlag = false;
-    panel.addEventListener('mousedown', ()=>moveFlag=true);
-    panel.addEventListener('mouseup', ()=>moveFlag=false);
+    panel.addEventListener('mousedown', () => moveFlag = true);
+    panel.addEventListener('mouseup', () => moveFlag = false);
     document.body.addEventListener('mousemove',(evt)=>{
-      if(!moveFlag) return;
-      let newTop = evt.pageY - 2*this.topPanel.offsetHeight/3;
+      if (!moveFlag) {
+        return;
+      }
+      const newTop = evt.pageY - 2 * this.topPanel.offsetHeight / 3;
       this.mainContainer.style.top = `${newTop}px`;
-      let newLeft = evt.pageX - this.mainContainer.offsetWidth/2;
+      const newLeft = evt.pageX - this.mainContainer.offsetWidth / 2;
       this.mainContainer.style.left = `${newLeft}px`;
     });
   }
@@ -86,23 +91,25 @@ class KillerContainer {
   }
 
   controlPanelClickListener(evt) {
-    if(evt.target.tagName == 'INPUT'){
-      let changedAction = evt.target.parentNode.dataset['changeaction'];
-      if(changedAction == 'autofight') {
-        if(!this.autoFightStatusChangedListener) return;
-        this.autoFightStatusChangedListener(evt.target.checked);
+    if (evt.target.tagName == 'INPUT'){
+      const changedAction = evt.target.parentNode.dataset['changeaction'];
+      if (changedAction == 'autofight') {
+        this.autoFightStatusChangedListener && this.autoFightStatusChangedListener(evt.target.checked);
       }
-      if(changedAction == 'attack') {
-        if(!this.attackStatusChangedListener) return;
-        let changedAttackNumber = evt.target.parentNode.dataset['attacknumber'];
+
+      if (changedAction == 'attack') {
+        if (!this.attackStatusChangedListener) {
+          return;
+        }
+        const changedAttackNumber = evt.target.parentNode.dataset['attacknumber'];
         this.attackStatusChangedListener(evt.target.checked, changedAttackNumber);
       }
     }
-    if(evt.target.tagName == 'BUTTON') {
-      let action = evt.target.parentNode.dataset['action'];
-      if(action == 'showsettings') {
-        if(!this.settingsButtonClickListener) return;
-        this.settingsButtonClickListener();
+
+    if (evt.target.tagName == 'BUTTON') {
+      const action = evt.target.parentNode.dataset['action'];
+      if (action == 'showsettings') {
+        this.settingsButtonClickListener && this.settingsButtonClickListener();
       }
     }
   }

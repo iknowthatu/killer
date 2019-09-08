@@ -12,3 +12,8 @@ export const SELECTOR_POKEMON_CARDS = '.pokemonBoxCard:not([data-changed])';
 
 export const SELECTOR_POKEDEX_POKEMON_CARD = '#divPokedex .imagebox';
 export const SELECTOR_POKEDEX_POKEMON_TITLE = '#divPokedex .params > .title';
+
+export const SELECTOR_FIGHT_VIEW = '#divVisioFight';
+export const SELECTOR_CAPTCHA = '#divFightCaptcha';
+export const SELECTOR_FIGHT_STATUS = '#divFightAction';
+export const SELECTOR_FIGHT_DUMMY_POKEMON = '.pokemonBoxDummy';
