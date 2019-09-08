@@ -1,4 +1,4 @@
-import { turnWildPokemons, closeFightDiv } from '../../Utils/EnvironmentUtils';
+import { turnWildPokemons, closeFightDiv, getPokemonOpenParameter } from '../../Utils/EnvironmentUtils';
 
 class KillerHeart {
   constructor() {
@@ -213,11 +213,11 @@ class KillerHeart {
   /* infight parametres & actions with player pokemon */
 
   getPlayerPokemonCurrentHPpercents() {
-    return this.settings.commonHeart.getPokemonOpenParameter({pokemonOwner:'player',parameter:'hp'});
+    return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'hp' });
   }
 
   getPlayerPokemonCurrentEXPpercents() {
-    return this.settings.commonHeart.getPokemonOpenParameter({pokemonOwner:'player',parameter:'exp'});
+    return getPokemonOpenParameter({ pokemonOwner: 'player', parameter: 'exp' });
   }
 
   getPlayerPokemonAttackPP(attackNumber) {
@@ -271,7 +271,7 @@ class KillerHeart {
   }
 
   getEnemyHPpercents() {
-    return this.settings.commonHeart.getPokemonOpenParameter({pokemonOwner:'enemy',parameter:'hp'});
+    return getPokemonOpenParameter({ pokemonOwner: 'enemy', parameter: 'hp' });
   }
 
   isAttackForbiddenForThisNumber() {
