@@ -1,6 +1,4 @@
-import {
-  turnWildPokemons
-} from '../../Utils/EnvironmentUtils';
+import EnvironmentUtils from '../../Utils/EnvironmentUtils';
 
 class HealerHeart {
   constructor() {
@@ -32,7 +30,7 @@ class HealerHeart {
       //console.log('we have back to farm place ;)');
       newParams.needHeal = false;
       newParams.needMove = false;
-      turnWildPokemons(true);
+      EnvironmentUtils.turnWildPokemons(true);
       return newParams;
     }
 

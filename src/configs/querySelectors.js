@@ -24,3 +24,6 @@ export const SELECTOR_FIGHT_PLAYER_ACTION_BUTTON = '#divFightButtons .button';
 
 export const SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_PARAMS = '#divFightI .divMoveParams';
 export const SELECTOR_FIGHT_ENEMY_POKEMON_IMAGE = '#divFightH .image > img';
+
+export const SELECTOR_FIGHT_ENEMY_POKEMON_RANK = '#divFightH .rank';
+export const SELECTOR_FIGHT_ENEMY_POKEMON_RANK_ALT = '#divFightH .rank span';

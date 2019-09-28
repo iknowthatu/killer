@@ -1,6 +1,4 @@
-import {
-  checkIsFight
-} from '../../Utils/EnvironmentUtils';
+import EnvironmentUtils from '../../Utils/EnvironmentUtils';
 
 class CommonHeart {
   constructor() {
@@ -16,7 +14,7 @@ class CommonHeart {
   nextPulse(params = {}) {
     const newParams = { ...params };
 
-    const isFight = checkIsFight();
+    const isFight = EnvironmentUtils.checkIsFight();
     //this.showLocationIds();
     newParams.isFight = isFight;
 

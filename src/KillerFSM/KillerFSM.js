@@ -4,9 +4,7 @@ import {
   FSM
 } from './../FSM/FiniteStateMachine';
 
-import {
-  checkIsFight
-} from './../Utils/EnvironmentUtils';
+import EnvironmentUtils from './../Utils/EnvironmentUtils';
 import KillerContainer from '../Killer/MainContainer';
 
 class KillerFSM extends FSM {
@@ -29,7 +27,7 @@ class KillerFSM extends FSM {
   main() {
     const waitState = new FSM_State('wait');
     waitState.action = function() {
-      this.environment.isFight = checkIsFight();
+      this.environment.isFight = EnvironmentUtils.checkIsFight();
     };
 
     const waitStateTransitionToFight = new FSM_StateTransition();
@@ -39,7 +37,7 @@ class KillerFSM extends FSM {
 
     const walkingState = new FSM_State('fight');
     walkingState.action = function() {
-      this.environment.isFight = checkIsFight();
+      this.environment.isFight = EnvironmentUtils.checkIsFight();
     };
 
     const walkingStateTransitionToWait = new FSM_StateTransition();

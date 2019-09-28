@@ -1,14 +1,5 @@
-import {
-  turnWildPokemons,
-  closeFightDiv,
-  getPokemonOpenParameter,
-  checkIsCaptchaAppears,
-  getPlayerPokemonCurrentHPpercents,
-  getPlayerPokemonCurrentEXPpercents,
-  getPlayerPokemonAttackPP,
-  getEnemyPokemonNumberAsString
-} from '../../Utils/EnvironmentUtils';
-import { getFightStatus } from '../../KillerFSM/FightUtils';
+import EnvironmentUtils from '../../Utils/EnvironmentUtils';
+import FightUtils from './../../Utils/FightUtils';
 import { FIGHT_STATUS_VICTORY, FIGHT_STATUS_FAIL, FIGHT_STATUS_DRAW, FIGHT_STATUS_HARD_DRAW, FIGHT_STATUS_POKEMON_LOST } from '../../configs/killerConfigs';
 
 class KillerHeart {
@@ -23,7 +14,10 @@ class KillerHeart {
   }
 
   switchAlarm(value) {
-    if(!value || !this.settings.alarmswitch) return this.settings.organism.alarm.stopPlay();
+    if (!value || !this.settings.alarmswitch) {
+      return this.settings.organism.alarm.stopPlay();
+    }
+
     this.settings.organism.alarm.startPlay();
   }
 
@@ -34,7 +28,7 @@ class KillerHeart {
 
     const newParams = { ...params };
 
-    const isCaptcha = checkIsCaptchaAppears();
+    const isCaptcha = EnvironmentUtils.checkIsCaptchaAppears();
     newParams.isCaptcha = isCaptcha;
     if(isCaptcha) {
       console.log('u should enter captcha');
@@ -49,14 +43,14 @@ class KillerHeart {
     };
     this.switchAlarm(false);
 
-    const numberOfPermittedAttacks = this.getNumberOfPermittedAttacks();
+    const numberOfPermittedAttacks = FightUtils.getNumberOfPermittedAttacks(this.settings.attack);
     if (!numberOfPermittedAttacks) {
       //console.log('no permitted attacks');
       return newParams;
     };
 
     newParams.killedCounter = newParams.killedCounter ? newParams.killedCounter : 0;
-    const fightStatus = getFightStatus();
+    const fightStatus = FightUtils.getFightStatus();
     switch (fightStatus) {
       case FIGHT_STATUS_VICTORY: case FIGHT_STATUS_FAIL: case FIGHT_STATUS_DRAW:
         if(fightStatus === FIGHT_STATUS_VICTORY) this.settings.organism.killedCounter++;
@@ -64,39 +58,41 @@ class KillerHeart {
           newParams.catchParams.catched = this.settings.catcherHeart.isPokemonWasCaught();
           newParams.catchParams.phase = 7;
         }
-        closeFightDiv();
+        EnvironmentUtils.closeFightLayerNode();
         return newParams;
+
       case FIGHT_STATUS_HARD_DRAW:
         console.log(`Pokemon was killed but enemy was killed too`);
         this.settings.organism.killedCounter++;
-        turnWildPokemons(false);
-        closeFightDiv();
+        EnvironmentUtils.turnWildPokemons(false);
+        EnvironmentUtils.closeFightLayerNode();
         newParams.needHeal = true;
         return newParams;
+
       case FIGHT_STATUS_POKEMON_LOST:
         console.log(`Pokemon was killed`);
-        turnWildPokemons(false);
-        // closeFightDiv();
+        EnvironmentUtils.turnWildPokemons(false);
+        // EnvironmentUtils.closeFightLayerNode();
         newParams.needHeal = true;
         return this.changePokemon().then(_ => newParams);
     }
 
     if (this.settings.controlexp && !isNaN(this.settings.controlexp)) {
-      const currentExp = getPlayerPokemonCurrentEXPpercents();
+      const currentExp = EnvironmentUtils.getPlayerPokemonCurrentEXPpercents();
       const criticalExp = this.settings.controlexp > 90 ? this.settings.controlexp : 90;
       if(currentExp >= criticalExp) return;
     }
 
-    const currentHp = getPlayerPokemonCurrentHPpercents();
+    const currentHp = EnvironmentUtils.getPlayerPokemonCurrentHPpercents();
     const criticalHp = this.settings.controlhp > 20 ? this.settings.controlhp : 20;
     if(currentHp <= criticalHp) {
-      turnWildPokemons(false);
+      EnvironmentUtils.turnWildPokemons(false);
       newParams.needHeal = true;
     }
 
-    const enemyPokemonNumber = getEnemyPokemonNumberAsString();
+    const enemyPokemonNumber = EnvironmentUtils.getEnemyPokemonNumberAsString();
     newParams.lastPokemonNumber = enemyPokemonNumber;
-    if( this.isAttackForbiddenForThisNumber() &&
+    if (FightUtils.isAttackForbiddenForThisNumber(this.settings.forbiddennumbers) &&
         (this.settings.catcherHeart.isPokemonCanBeCaught() ||
         !this.settings.catcherHeart.isPokemonShouldBeCaughtAutomatically())) {
       //console.log('forbidden pokemon');
@@ -107,7 +103,7 @@ class KillerHeart {
       return newParams;
     }
 
-    const enemyType = this.isEnemyNormal();
+    const enemyType = FightUtils.isEnemyNormal();
     if(!enemyType) {
       console.log('Enemy is shine or smt else');
       this.switchAlarm();
@@ -118,9 +114,9 @@ class KillerHeart {
     }
 
     this.repeatAttackCounter = 0;
-    if(this.numberOfPermittedAttacksPP() < 2) {
+    if(FightUtils.getNumberOfPermittedAttacksPP(this.settings.attack) < 2) {
       console.log('PP is over. Need Heal');
-      turnWildPokemons(false);
+      EnvironmentUtils.turnWildPokemons(false);
       newParams.needHeal = true;
       this.chooseAttack(true);
       return newParams;
@@ -131,10 +127,6 @@ class KillerHeart {
   }
 
   /* fight actions & parametres */
-  getNumberOfPermittedAttacks() {
-    return this.settings.attack.filter(attack => attack === 1).length;
-  }
-
   // getWeather() {
   //   const weatherDiv = document.querySelector('#divFightWeather');
   //   const hail = weatherDiv.querySelector('.w3');
@@ -145,7 +137,7 @@ class KillerHeart {
   // }
 
   chooseAttack(lastTry) {
-    if(!this.getNumberOfPermittedAttacks()) return;
+    if(!FightUtils.getNumberOfPermittedAttacks(this.settings.attack)) return;
     //if(this.numberOfPermittedAttacksPP() < 1) return; //excess checking
     const randomAttack = ~~(Math.random()*4);
     if(this.settings.attack[randomAttack]) {
@@ -159,7 +151,7 @@ class KillerHeart {
 
   clickAttack(attackNumber, lastTry) {
     if(attackNumber > 3 || attackNumber < 0) return false;
-    if(getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) return false;
+    if(EnvironmentUtils.getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) return false;
     const moveBox = document.querySelectorAll('#divFightI .moveBox')[attackNumber];
     if(!moveBox) return false;
     if(!moveBox.querySelector('.divMove')) return false;
@@ -194,17 +186,6 @@ class KillerHeart {
     .then(_ => this.settings.organism.wait(1000));
   }
 
-  /* infight parametres & actions with player pokemon */
-  numberOfPermittedAttacksPP() {
-    return this.settings.attack.reduce((sum, attackPermission, index) => {
-        if (!attackPermission) {
-          return sum;
-        }
-
-        return sum + getPlayerPokemonAttackPP(index);
-      }, 0);
-  }
-
   /* infight parametres & actions with enemy pokemon */
 
   // isEnemyCanBeCaught() {
@@ -219,30 +200,9 @@ class KillerHeart {
   //   return enemyLevel;
   // }
 
-  isEnemyNormal() {
-    const enemyRankDiv = document.querySelector('#divFightH .rank');
-    if(!enemyRankDiv) return true;
-    const enemyRankSpan = enemyRankDiv.querySelector('span');
-    if(!enemyRankSpan) {
-      const enemyRank = enemyRankDiv.innerHTML;
-      if(enemyRank.match(/\S+/)) return false;
-    } else {
-      if(enemyRankSpan.innerHTML.match(/\S+/)) return false;
-    }
-    return true;
-  }
-
   getEnemyHPpercents() {
-    return getPokemonOpenParameter({ pokemonOwner: 'enemy', parameter: 'hp' });
+    return EnvironmentUtils.getPokemonOpenParameter({ pokemonOwner: 'enemy', parameter: 'hp' });
   }
-
-  isAttackForbiddenForThisNumber() {
-    const currentNumber = getEnemyPokemonNumberAsString();
-    const forbiddenNumbers = this.settings.forbiddennumbers.match(/\d{1,3};?/g);
-    if(!forbiddenNumbers) return false;
-    return forbiddenNumbers.some(number => +currentNumber == +(number.replace(';','')));
-  }
-
   /* common actions */
 
   setSettings(settings={}) {
