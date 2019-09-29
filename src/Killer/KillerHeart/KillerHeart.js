@@ -81,7 +81,7 @@ class KillerHeart {
         EnvironmentUtils.turnWildPokemons(false);
         // EnvironmentUtils.closeFightLayerNode();
         newParams.needHeal = true;
-        return this.changePokemon().then(_ => newParams);
+        return this.changePokemon().then(() => newParams);
     }
 
     if (this.settings.controlexp && !isNaN(this.settings.controlexp)) {
@@ -150,7 +150,7 @@ class KillerHeart {
     //if(this.numberOfPermittedAttacksPP() < 1) return; //excess checking
     const randomAttack = ~~(Math.random()*4);
     if (this.settings.attack[randomAttack]) {
-      const resultClicking = this.clickAttack(randomAttack, lastTry);
+      const resultClicking = FightUtils.clickAttack(randomAttack, lastTry);
       if (resultClicking) {
         return;
       }
@@ -164,33 +164,9 @@ class KillerHeart {
     this.chooseAttack(lastTry);
   }
 
-  clickAttack(attackNumber, lastTry) {
-    if (attackNumber > 3 || attackNumber < 0) {
-      return false;
-    }
-
-    if (EnvironmentUtils.getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) {
-      return false;
-    }
-
-    const moveBox = document.querySelectorAll('#divFightI .moveBox')[attackNumber];
-    if (!moveBox) {
-      return false;
-    }
-
-    if (!moveBox.querySelector('.divMove')) {
-      return false;
-    }
-
-    const divForClicking = moveBox.querySelector('.divMoveInfo');
-    divForClicking.click();
-
-    return true;
-  }
-
   /* switch pokemon */
 
-  checkIsPokemonsListToChangeLoaded() {
+  isPokemonsListToChangeLoaded() {
     const divContextTitle = document.querySelector('.divContext .divTitle').innerHTML;
     if (!divContextTitle.match(/выбрать монстра/i)) {
       return this.changePokemon();
@@ -199,7 +175,7 @@ class KillerHeart {
     const pokemons = document.querySelectorAll('.divContext .divElement');
     if (!pokemons || pokemons.length < 1) {
       return CommonUtils.wait(1000)
-        .then(_ => this.checkIsPokemonsListToChangeLoaded());
+        .then(() => this.isPokemonsListToChangeLoaded());
     }
 
     return true;
@@ -211,7 +187,7 @@ class KillerHeart {
         document.querySelector('#divFightI .pokemonBoxDummy').click();
       })
       .then(() => CommonUtils.wait(1000))
-      .then(() => this.checkIsPokemonsListToChangeLoaded())
+      .then(() => this.isPokemonsListToChangeLoaded())
       .then(() => {
         const pokemons = document.querySelectorAll('.divContext .divElement');
         pokemons[~~(pokemons.length*Math.random())].click();

@@ -44,7 +44,7 @@ export default class EnvironmentUtils {
   }
 
   /**
-   * get enemy pokemon number
+   * returns enemy pokemon number (fight mode)
    * @returns {string}
    */
   static getEnemyPokemonNumberAsString() {
@@ -58,7 +58,7 @@ export default class EnvironmentUtils {
   }
 
   /**
-   *
+   * returns number of available PP for 'attackNumber' move of pokemon (fight mode)
    * @param {number} attackNumber
    * @returns {number}
    */
@@ -74,6 +74,8 @@ export default class EnvironmentUtils {
   }
 
   /**
+   * returns number of percentes for player's pokemon exp (fight mode)
+   * or undefined, if there is no available exp bar
    * @returns {number}
    */
   static getPlayerPokemonCurrentEXPpercents() {
@@ -81,6 +83,8 @@ export default class EnvironmentUtils {
   }
 
   /**
+   * returns number of percentes for player's pokemon hp (fight mode)
+   * or undefined, if there is no available hp bar
    * @returns {number}
    */
   static getPlayerPokemonCurrentHPpercents() {
@@ -88,7 +92,8 @@ export default class EnvironmentUtils {
   }
 
   /**
-   *
+   * returns number of percentes for pokemon parameter (fight mode)
+   * or undefined, if there is no available parameter bar
    * @param {object} options
    * @param {string} options.pokemonOwner
    * @param {string} options.parameter
@@ -106,13 +111,14 @@ export default class EnvironmentUtils {
       return;
     }
 
-    const pokemonParameterPercentes = +parameterBarNode.firstElementChild
-      .style.width.replace('%', '');
+    const pokemonParameterPercentes = parseInt(parameterBarNode.firstElementChild
+      .style.width.replace('%', ''));
 
     return pokemonParameterPercentes;
   }
 
   /**
+   * returns node with enemy pokemon panel (fight mode)
    * @returns {HTMLElement}
    */
   static getFightEnemyPanel() {
@@ -120,6 +126,7 @@ export default class EnvironmentUtils {
   }
 
   /**
+   * returns node with player pokemon panel (fight mode)
    * @returns {HTMLElement}
    */
   static getFightPlayerPanel() {

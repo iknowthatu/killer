@@ -4,7 +4,8 @@ import {
   SELECTOR_FIGHT_POKEMON_PANEL_PLAYER,
   SELECTOR_FIGHT_POKEMON_PANEL_ENEMY,
   SELECTOR_FIGHT_ENEMY_POKEMON_RANK,
-  SELECTOR_FIGHT_ENEMY_POKEMON_RANK_ALT
+  SELECTOR_FIGHT_ENEMY_POKEMON_RANK_ALT,
+  SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_INFO
 } from '../configs/querySelectors';
 
 import {
@@ -100,5 +101,31 @@ export default class FightUtils {
    */
   static getNumberOfPermittedAttacks(pokemonMovesConfig) {
     return pokemonMovesConfig.filter(attack => !!attack).length;
+  }
+
+  /**
+   * perform click on numberOfMove move of Player pokemon (fightmode)
+   * if PP of the clicked move less than 1, clickcing is prevented
+   * if lastTry === true, clicking is performed even if PP < 1
+   * @param {number} numberOfMove
+   * @param {boolean} [lastTry]
+   */
+  static clickAttack(numberOfMove, lastTry) {
+    if (numberOfMove > 3 || numberOfMove < 0) {
+      return false;
+    }
+
+    if (EnvironmentUtils.getPlayerPokemonAttackPP(numberOfMove) < 1 && !lastTry) {
+      return false;
+    }
+
+    const moveInfoNode = document.querySelectorAll(SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_INFO)[numberOfMove];
+    if (!moveInfoNode) {
+      return false;
+    }
+
+    moveInfoNode.click();
+
+    return true;
   }
 }

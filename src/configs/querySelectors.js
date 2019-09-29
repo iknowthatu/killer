@@ -19,7 +19,9 @@ export const SELECTOR_FIGHT_STATUS = '#divFightAction';
 export const SELECTOR_FIGHT_DUMMY_POKEMON = '.pokemonBoxDummy';
 
 export const SELECTOR_INTERFACE_TOGGLE_WILD = '#divInputButtons .btnSwitchWilds';
+
 export const SELECTOR_FIGHT_PLAYER_POKEMON_MOVES = '#divFightI .moves';
+export const SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_INFO = '#divFightI .moveBox .divMove .divMoveInfo';
 export const SELECTOR_FIGHT_PLAYER_ACTION_BUTTON = '#divFightButtons .button';
 
 export const SELECTOR_FIGHT_PLAYER_POKEMON_MOVE_PARAMS = '#divFightI .divMoveParams';
