@@ -48,8 +48,8 @@ gulp.task('default', gulp.series([
 ]));
 
 function pack(browserName, cb) {
-  let fileExt = browserName === 'opera' ? 'nex' : 'crx';
-  let command = `${browserName} --pack-extension=./dist/app --pack-extension-key=./non_commit_files/packed/${browserName}/killer.pem\
+  const fileExt = browserName === 'opera' ? 'nex' : 'crx';
+  const command = `${browserName} --pack-extension=./dist/app --pack-extension-key=./non_commit_files/packed/${browserName}/killer.pem\
     && cp ./dist/app.${fileExt} ./release/${browserName}/killer.${fileExt}\
     && mv ./dist/app.${fileExt} ./non_commit_files/packed/${browserName}/killer.${fileExt}`;
 
@@ -74,7 +74,7 @@ gulp.task('pack-for-chromium', (cb) => {
 });
 
 gulp.task('release-unpacked', (cb) => {
-  let command = `cp -r ./dist/app ./release/unpacked/`;
+  const command = `cp -r ./dist/app ./release/unpacked/`;
 
   child_process.execSync(command);
   cb();
