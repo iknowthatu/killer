@@ -14,7 +14,7 @@ class CommonHeart {
   nextPulse(params = {}) {
     const newParams = { ...params };
 
-    const isFight = EnvironmentUtils.checkIsFight();
+    const isFight = EnvironmentUtils.isFight();
     //this.showLocationIds();
     newParams.isFight = isFight;
 
@@ -54,7 +54,7 @@ class CommonHeart {
   //   if(!panelWithTeam || panelWithTeam.style.display == 'none') return this.openTeamDiv();
   //   const teamDiv = panelWithTeam.querySelector('.divPokeTeam');
   //   if(teamDiv.classList.contains('ajxloading'))
-  //   return this.settings.organism.wait(1000)
+  //   return CommonUtils.wait(1000)
   //     .then(_ => this.checkingIsTeamOpenedAndLoaded());
   // }
 
@@ -62,7 +62,7 @@ class CommonHeart {
   //   const menuButtons = document.querySelectorAll('#divDockMenu .divDockIn .icon');
   //   if(menuButtons.length < 1) return;
   //   menuButtons[1].click();
-  //   return this.settings.organism.wait(1000)
+  //   return CommonUtils.wait(1000)
   //     .then(_ => this.checkingIsTeamOpenedAndLoaded());
   // }
 

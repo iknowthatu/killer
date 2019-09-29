@@ -16,7 +16,7 @@ export default class EnvironmentUtils {
    * check display style parameter
    * @param {HTMLElement} node
    */
-  static checkIsNodeVisible(node) {
+  static isNodeVisible(node) {
     return node && node.style.display !== 'none';
   }
 
@@ -24,10 +24,10 @@ export default class EnvironmentUtils {
    * check is fight mode active
    * @returns {boolean}
    */
-  static checkIsFight() {
+  static isFight() {
     const fightViewNode = document.querySelector(SELECTOR_FIGHT_VIEW);
 
-    return EnvironmentUtils.checkIsNodeVisible(fightViewNode);
+    return EnvironmentUtils.isNodeVisible(fightViewNode);
   }
 
   /**
@@ -35,11 +35,11 @@ export default class EnvironmentUtils {
    * false in other case
    * @returns {boolean}
    */
-  static checkIsCaptchaAppears() {
+  static isCaptchaVisible() {
     const captchaNode = document.querySelector(SELECTOR_CAPTCHA);
     const captchaImage = captchaNode.querySelector('img');
 
-    return EnvironmentUtils.checkIsNodeVisible(captchaNode) &&
+    return EnvironmentUtils.isNodeVisible(captchaNode) &&
       captchaImage && captchaImage.src !== undefined;
   }
 
@@ -133,7 +133,7 @@ export default class EnvironmentUtils {
     const CLOSE_FIGHT_VIEW_BUTTON_NUMBER = 4;
     const pokeMovesNode = document.querySelector(SELECTOR_FIGHT_PLAYER_POKEMON_MOVES);
     const closeButtonNode = document.querySelectorAll(SELECTOR_FIGHT_PLAYER_ACTION_BUTTON)[CLOSE_FIGHT_VIEW_BUTTON_NUMBER];
-    if ((pokeMovesNode && EnvironmentUtils.checkIsNodeVisible(pokeMovesNode)) || !EnvironmentUtils.checkIsNodeVisible(closeButtonNode)) {
+    if ((pokeMovesNode && EnvironmentUtils.isNodeVisible(pokeMovesNode)) || !EnvironmentUtils.isNodeVisible(closeButtonNode)) {
       return;
     }
 

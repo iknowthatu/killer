@@ -27,7 +27,7 @@ class KillerFSM extends FSM {
   main() {
     const waitState = new FSM_State('wait');
     waitState.action = function() {
-      this.environment.isFight = EnvironmentUtils.checkIsFight();
+      this.environment.isFight = EnvironmentUtils.isFight();
     };
 
     const waitStateTransitionToFight = new FSM_StateTransition();
@@ -37,7 +37,7 @@ class KillerFSM extends FSM {
 
     const walkingState = new FSM_State('fight');
     walkingState.action = function() {
-      this.environment.isFight = EnvironmentUtils.checkIsFight();
+      this.environment.isFight = EnvironmentUtils.isFight();
     };
 
     const walkingStateTransitionToWait = new FSM_StateTransition();

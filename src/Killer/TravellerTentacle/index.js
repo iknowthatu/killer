@@ -1,3 +1,5 @@
+import CommonUtils from '../../Utils/CommonUtils';
+
 class TravellerTentacle {
   constructor() {
     this.init();
@@ -52,7 +54,7 @@ class TravellerTentacle {
 
     nextLocationButton.click();
 
-    return this.settings.organism.wait(1000)
+    return CommonUtils.wait(1000)
     .then(_ => this.isPlaceWasChanged(locationButtons));
   }
 
@@ -67,7 +69,7 @@ class TravellerTentacle {
     }
 
     //console.log('waiting for place changing');
-    return this.settings.organism.wait(1000)
+    return CommonUtils.wait(1000)
       .then(_ => this.isPlaceWasChanged(oldLocationButtons));
   }
 }

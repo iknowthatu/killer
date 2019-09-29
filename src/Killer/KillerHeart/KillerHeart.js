@@ -1,6 +1,13 @@
 import EnvironmentUtils from '../../Utils/EnvironmentUtils';
 import FightUtils from './../../Utils/FightUtils';
-import { FIGHT_STATUS_VICTORY, FIGHT_STATUS_FAIL, FIGHT_STATUS_DRAW, FIGHT_STATUS_HARD_DRAW, FIGHT_STATUS_POKEMON_LOST } from '../../configs/killerConfigs';
+import {
+  FIGHT_STATUS_VICTORY,
+  FIGHT_STATUS_FAIL,
+  FIGHT_STATUS_DRAW,
+  FIGHT_STATUS_HARD_DRAW,
+  FIGHT_STATUS_POKEMON_LOST
+} from '../../configs/killerConfigs';
+import CommonUtils from '../../Utils/CommonUtils';
 
 class KillerHeart {
   constructor() {
@@ -28,7 +35,7 @@ class KillerHeart {
 
     const newParams = { ...params };
 
-    const isCaptcha = EnvironmentUtils.checkIsCaptchaAppears();
+    const isCaptcha = EnvironmentUtils.isCaptchaVisible();
     newParams.isCaptcha = isCaptcha;
     if(isCaptcha) {
       console.log('u should enter captcha');
@@ -137,26 +144,47 @@ class KillerHeart {
   // }
 
   chooseAttack(lastTry) {
-    if(!FightUtils.getNumberOfPermittedAttacks(this.settings.attack)) return;
+    if (!FightUtils.getNumberOfPermittedAttacks(this.settings.attack)) {
+      return;
+    }
     //if(this.numberOfPermittedAttacksPP() < 1) return; //excess checking
     const randomAttack = ~~(Math.random()*4);
-    if(this.settings.attack[randomAttack]) {
+    if (this.settings.attack[randomAttack]) {
       const resultClicking = this.clickAttack(randomAttack, lastTry);
-      if(resultClicking) return;
+      if (resultClicking) {
+        return;
+      }
     }
+
     this.repeatAttackCounter++;
-    if(this.repeatAttackCounter > 100) throw 'Too much attacks repeat';
+    if (this.repeatAttackCounter > 100) {
+      throw 'Too much attacks repeat';
+    }
+
     this.chooseAttack(lastTry);
   }
 
   clickAttack(attackNumber, lastTry) {
-    if(attackNumber > 3 || attackNumber < 0) return false;
-    if(EnvironmentUtils.getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) return false;
+    if (attackNumber > 3 || attackNumber < 0) {
+      return false;
+    }
+
+    if (EnvironmentUtils.getPlayerPokemonAttackPP(attackNumber) < 1 && !lastTry) {
+      return false;
+    }
+
     const moveBox = document.querySelectorAll('#divFightI .moveBox')[attackNumber];
-    if(!moveBox) return false;
-    if(!moveBox.querySelector('.divMove')) return false;
+    if (!moveBox) {
+      return false;
+    }
+
+    if (!moveBox.querySelector('.divMove')) {
+      return false;
+    }
+
     const divForClicking = moveBox.querySelector('.divMoveInfo');
     divForClicking.click();
+
     return true;
   }
 
@@ -164,26 +192,31 @@ class KillerHeart {
 
   checkIsPokemonsListToChangeLoaded() {
     const divContextTitle = document.querySelector('.divContext .divTitle').innerHTML;
-    if(!divContextTitle.match(/выбрать монстра/i)) return this.changePokemon();
+    if (!divContextTitle.match(/выбрать монстра/i)) {
+      return this.changePokemon();
+    }
+
     const pokemons = document.querySelectorAll('.divContext .divElement');
-    if(!pokemons || pokemons.length < 1)
-    return this.settings.organism.wait(1000)
-      .then(_ => this.checkIsPokemonsListToChangeLoaded());
+    if (!pokemons || pokemons.length < 1) {
+      return CommonUtils.wait(1000)
+        .then(_ => this.checkIsPokemonsListToChangeLoaded());
+    }
+
     return true;
   }
 
   changePokemon() {
-    return this.settings.organism.wait(500)
-    .then(_ => {
-      document.querySelector('#divFightI .pokemonBoxDummy').click();
-    })
-    .then(_ => this.settings.organism.wait(1000))
-    .then(_ => this.checkIsPokemonsListToChangeLoaded())
-    .then(_ => {
-      const pokemons = document.querySelectorAll('.divContext .divElement');
-      pokemons[~~(pokemons.length*Math.random())].click();
-    })
-    .then(_ => this.settings.organism.wait(1000));
+    return CommonUtils.wait(500)
+      .then(() => {
+        document.querySelector('#divFightI .pokemonBoxDummy').click();
+      })
+      .then(() => CommonUtils.wait(1000))
+      .then(() => this.checkIsPokemonsListToChangeLoaded())
+      .then(() => {
+        const pokemons = document.querySelectorAll('.divContext .divElement');
+        pokemons[~~(pokemons.length*Math.random())].click();
+      })
+      .then(() => CommonUtils.wait(1000));
   }
 
   /* infight parametres & actions with enemy pokemon */

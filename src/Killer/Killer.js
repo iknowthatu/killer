@@ -10,6 +10,7 @@ import setRequestsHook from './Inject/RequestsHook';
 // import spillGlobalVars from './Inject/TKeyGetter';
 // import CookieMaker from './CookieMaker';
 import Alarm from './Alarm/Alarm';
+import CommonUtils from '../Utils/CommonUtils';
 
 let lifesCounter = 0;
 
@@ -107,12 +108,6 @@ class Killer {
     this.killerHeartbeat({ life: this.currentKillerLife });
   }
 
-  wait(seconds, paramToChain) {
-    return new Promise(resolve => {
-      setTimeout(_ => resolve(paramToChain), seconds * 1000);
-    });
-  }
-
   showKilledCounter(value) {
     const counterView = document.querySelector('[data-view=killedwild]');
     counterView.value = value ? value : 0;
@@ -132,7 +127,7 @@ class Killer {
       .then(this.catcherHeart.nextPulse)
       .then(this.healerHeart.nextPulse)
       .then(this.travellerHeart.nextPulse)
-      .then(blood => this.wait(randomTimeInterval, blood))
+      .then(blood => CommonUtils.wait(randomTimeInterval, blood))
       .then(blood => this.killerHeartbeat(blood));
   }
 
