@@ -1,4 +1,4 @@
-let settingsViewHtml = `<div class="killerSettings__wrapper">
+const settingsViewHtml = `<div class="killerSettings__wrapper">
 <div class="killerSettings__topPanel"></div>
 <div class="killerSettings__controlPanel">
   <div class="killerSettings__controlPanelRow">
@@ -76,63 +76,71 @@ class SettingsContainer {
   }
 
   init() {
-    this.mainWrapper = this.createView();
-      this.topPanel = this.mainWrapper.querySelector('.killerSettings__topPanel');
-      this.controlPanel = this.mainWrapper.querySelector('.killerSettings__controlPanel');
+    this.mainWrapperNode = this.createView();
+      this.topPanel = this.mainWrapperNode.querySelector('.killerSettings__topPanel');
+      this.controlPanel = this.mainWrapperNode.querySelector('.killerSettings__controlPanel');
 
     this.addTopPanelDragListeners();
-
     this.changeListeners = {};
 
     this.controlPanel.addEventListener(
       'change',
-      (evt)=>{this.controlPanelChangeListener(evt);}
+      evt => this.controlPanelChangeListener(evt)
     );
   }
 
   createView() {
-    let tempDiv = document.createElement('div');
-    tempDiv.innerHTML = settingsViewHtml;
-    return tempDiv.firstChild;
+    const tempNode = document.createElement('div');
+    tempNode.innerHTML = settingsViewHtml;
+    return tempNode.firstChild;
   }
 
   getMainContainerElement() {
-    return this.mainWrapper;
+    return this.mainWrapperNode;
   }
 
   addTopPanelDragListeners() {
-    let panel = this.topPanel;
+    const panelNode = this.topPanel;
     let moveFlag = false;
-    panel.addEventListener('mousedown', ()=>moveFlag=true);
-    panel.addEventListener('mouseup', ()=>moveFlag=false);
-    document.body.addEventListener('mousemove',(evt)=>{
-      if(!moveFlag) return;
-      let newTop = evt.pageY - 2*panel.offsetHeight/3;
-      this.mainWrapper.style.top = `${newTop}px`;
-      let newLeft = evt.pageX - this.mainWrapper.offsetWidth/2;
-      this.mainWrapper.style.left = `${newLeft}px`;
+    panelNode.addEventListener('mousedown', () => moveFlag = true);
+    panelNode.addEventListener('mouseup', () => moveFlag = false);
+    document.body.addEventListener('mousemove', evt => {
+      if (!moveFlag) {
+        return;
+      }
+
+      const newTop = evt.pageY - 2 * panelNode.offsetHeight / 3;
+      this.mainWrapperNode.style.top = `${newTop}px`;
+      const newLeft = evt.pageX - this.mainWrapperNode.offsetWidth / 2;
+      this.mainWrapperNode.style.left = `${newLeft}px`;
     });
   }
 
   controlPanelChangeListener(evt) {
-    if(evt.target.tagName == 'TEXTAREA' || evt.target.tagName == 'INPUT'){
-      let changedAction = evt.target.parentNode.dataset['changeaction'];
-      if(changedAction == 'forbiddennumbers' ||
+    if (evt.target.tagName == 'TEXTAREA' || evt.target.tagName == 'INPUT') {
+      const changedAction = evt.target.parentNode.dataset['changeaction'];
+      if (changedAction == 'forbiddennumbers' ||
          changedAction == 'waytoheal' ||
          changedAction == 'controlhp' ||
          changedAction == 'controlexp' ||
          changedAction == 'autocatchsettings' ||
          changedAction == 'alarmvolume' ||
          changedAction == 'alarmsrc') {
-        if(!this.changeListeners[changedAction]) return;
+        if (!this.changeListeners[changedAction]) {
+          return;
+        }
+
         this.changeListeners[changedAction](evt.target.value);
       }
-      if(changedAction == 'showpokemons' ||
+      if (changedAction == 'showpokemons' ||
          changedAction == 'autoheal' ||
          changedAction == 'showiv' ||
          changedAction == 'autocatch' ||
          changedAction == 'alarmswitch' ) {
-        if(!this.changeListeners[changedAction]) return;
+        if (!this.changeListeners[changedAction]) {
+          return;
+        }
+
         this.changeListeners[changedAction](evt.target.checked);
       }
     }
