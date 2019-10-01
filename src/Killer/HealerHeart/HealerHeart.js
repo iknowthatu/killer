@@ -14,11 +14,17 @@ class HealerHeart {
   }
 
   nextPulse(params = {}) {
-    if(!params.needHeal || params.isFight || !this.settings.autoheal) return params;
-    if(params.nextLocationNumber != null && !params.destinationReached) return params;
-    let newParams = {...params};
+    if (!params.needHeal || params.isFight || !this.settings.autoheal) {
+      return params;
+    }
 
-    if(params.destinationReached && params.direction == 'fwd') {
+    if (params.nextLocationNumber != null && !params.destinationReached) {
+      return params;
+    }
+
+    const newParams = {...params};
+
+    if (params.destinationReached && params.direction == 'fwd') {
       //console.log('we have reached a pc');
       newParams.direction = 'bck';
       newParams.destinationReached = false;
@@ -26,7 +32,7 @@ class HealerHeart {
         .then(_ => newParams);
     }
 
-    if(params.destinationReached && params.direction != 'fwd') {
+    if (params.destinationReached && params.direction != 'fwd') {
       //console.log('we have back to farm place ;)');
       newParams.needHeal = false;
       newParams.needMove = false;
@@ -47,33 +53,34 @@ class HealerHeart {
   /* healing commands */
 
   healAll() {
-    let healLink = 'https://game.league17.ru/do/pc/heal/poke';
-    let params = [{key:'vars', value: 0}];
-    let healResponseChecker = (response) => {
+    const healLink = 'https://game.league17.ru/do/pc/heal/poke';
+    const params = [{key:'vars', value: 0}];
+    const healResponseChecker = response => {
       if(!response || !response.alerten || response.alerten.type != 'success') {
         //console.log(response.alerten);
         throw 'Error healing';
       }
       return true;
     };
+
     return this.settings.organism.sendRequest(healLink, params)
-    .then(healResponseChecker)
-    .then(this.isTeamRestored);
+      .then(healResponseChecker)
+      .then(this.isTeamRestored);
   }
 
   isTeamRestored() {
-    let teamRestoringChecker = (teamResponse) => {
-      let team = teamResponse.object;
-      let teamNotRestored = team.some(pokemon => {
+    const teamRestoringChecker = (teamResponse) => {
+      const team = teamResponse.object;
+      const teamNotRestored = team.some(pokemon => {
         if(pokemon.hp < pokemon.hp_max) return true;
-        let moves = Object.values(pokemon.moves);
-        let isMovesNotRestored = moves.some(move => {
+        const moves = Object.values(pokemon.moves);
+        const isMovesNotRestored = moves.some(move => {
           if(!move)return false;
           return move.pp < move.pp_max;
         });
       });
       return !teamNotRestored;
-    }
+    };
 
     return this.settings.organism.sendRequest('https://game.league17.ru/do/pokes/load/team')
       .then(teamRestoringChecker);
