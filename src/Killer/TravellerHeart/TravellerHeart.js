@@ -96,7 +96,7 @@ class TravellerHeart {
       return true;
     }
 
-    for (let i = 0, lenght = oldLocationButtonsNodes.length; i < length; i++) {
+    for (let i = 0, length = oldLocationButtonsNodes.length; i < length; i++) {
       // @TODO seems this zero should be 'i' ?
       const locationIdForOldButton = oldLocationButtonsNodes[0].outerHTML.match(/btnGo\d+/).toString();
       const locationIdForNewButton = locationButtonsNodes[0].outerHTML.match(/btnGo\d+/).toString();
