@@ -2,7 +2,7 @@ import KillerContainer from './MainContainer';
 import CommonHeart from './CommonHeart/CommonHeart.js';
 import KillerHeart from './KillerHeart/KillerHeart.js';
 import HealerHeart from './HealerHeart/HealerHeart.js';
-import CatcherHeart from './CatcherHeart';
+import CatcherHeart from './CatcherHeart/CatcherHeart.js';
 import TravellerHeart from './TravellerHeart/TravellerHeart.js';
 import TravellerTentacle from './TravellerTentacle';
 import SettingsView from './SettingsContainer';
