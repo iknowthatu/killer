@@ -208,10 +208,6 @@ class KillerHeart {
   //   const enemyLevel = +enemyLevel.innerHTML;
   //   return enemyLevel;
   // }
-
-  getEnemyHPpercents() {
-    return EnvironmentUtils.getPokemonOpenParameter({ pokemonOwner: 'enemy', parameter: 'hp' });
-  }
   /* common actions */
 
   setSettings(settings={}) {

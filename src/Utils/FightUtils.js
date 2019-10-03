@@ -128,4 +128,12 @@ export default class FightUtils {
 
     return true;
   }
+
+  /**
+   * returns number of percentes of enemy HP (fight mode)
+   * @returns {number}
+   */
+  static getEnemyHPpercents() {
+    return EnvironmentUtils.getPokemonOpenParameter({ pokemonOwner: 'enemy', parameter: 'hp' });
+  }
 }

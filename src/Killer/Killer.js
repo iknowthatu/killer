@@ -316,7 +316,7 @@ class Killer {
 
     //'http://game.league17.ru/do/pokes/load/team'
     return fetch(url, options)
-      .then(_ => _.json());
+      .then(response => response.json());
   }
 }
 
