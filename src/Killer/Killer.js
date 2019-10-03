@@ -6,7 +6,6 @@ import CatcherHeart from './CatcherHeart/CatcherHeart.js';
 import TravellerHeart from './TravellerHeart/TravellerHeart.js';
 import SettingsView from './SettingsContainer';
 import setRequestsHook from './Inject/RequestsHook';
-// import spillGlobalVars from './Inject/TKeyGetter';
 // import CookieMaker from './CookieMaker';
 import Alarm from './Alarm/Alarm';
 import CommonUtils from '../Utils/CommonUtils';
