@@ -4,7 +4,6 @@ import KillerHeart from './KillerHeart/KillerHeart.js';
 import HealerHeart from './HealerHeart/HealerHeart.js';
 import CatcherHeart from './CatcherHeart/CatcherHeart.js';
 import TravellerHeart from './TravellerHeart/TravellerHeart.js';
-import TravellerTentacle from './TravellerTentacle';
 import SettingsView from './SettingsContainer';
 import setRequestsHook from './Inject/RequestsHook';
 // import spillGlobalVars from './Inject/TKeyGetter';
@@ -37,7 +36,6 @@ class Killer {
     const healerHeart = new HealerHeart();
     const catcherHeart = new CatcherHeart();
     const travellerHeart = new TravellerHeart();
-    const travellerTentacle = new TravellerTentacle();
 
     this.settings = {
       'autofight': false,
@@ -50,7 +48,6 @@ class Killer {
       'healerHeart': healerHeart,
       'catcherHeart': catcherHeart,
       'travellerHeart': travellerHeart,
-      'travellerTentacle': travellerTentacle,
       'organism': this
     };
 
@@ -59,7 +56,6 @@ class Killer {
     this.healerHeart = healerHeart;
     this.catcherHeart = catcherHeart;
     this.travellerHeart = travellerHeart;
-    this.travellerTentacle = travellerTentacle;
 
     this.killerView = killerView;
     this.settingsView = settingsView;
@@ -229,7 +225,6 @@ class Killer {
     this.healerHeart.setSettings(this.settings);
     this.catcherHeart.setSettings(this.settings);
     this.travellerHeart.setSettings(this.settings);
-    this.travellerTentacle.setSettings(this.settings);
 
     this.saveSettings();
     if(this.settings.autofight != oldAutofightStatus) this.startKillerLife();

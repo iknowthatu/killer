@@ -116,7 +116,6 @@ class KillerFSM extends FSM {
     // this.healerHeart.setSettings(this.settings);
     // this.catcherHeart.setSettings(this.settings);
     // this.travellerHeart.setSettings(this.settings);
-    // this.travellerTentacle.setSettings(this.settings);
 
     this.saveSettings();
     // if (this.settings.autofight !== oldAutofightStatus) this.startKillerLife();
