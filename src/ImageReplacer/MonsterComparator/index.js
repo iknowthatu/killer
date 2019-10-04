@@ -42,13 +42,13 @@ class League17MonsterComparator {
   }
 
   getOldGoodPokemonImageSrc(pokemonNumber, isShine = false) {
-    let host = isShine ? this.shineHost : this.normalHost;
+    const host = isShine ? this.shineHost : this.normalHost;
 
     return `${host}${pokemonNumber}.png`;
   }
 
   getPokemonNameByNumber(pokemonNumber) {
-    let pokemonFromData = this.pokemons.find(pokemon => pokemon.number == pokemonNumber);
+    const pokemonFromData = this.pokemons.find(pokemon => pokemon.number == pokemonNumber);
     if (!pokemonFromData) {
       return `i don't know this pokemon`;
     }
@@ -65,7 +65,7 @@ class League17MonsterComparator {
   /* inline pokemons */
 
   getInlinePokemonsNodes() {
-    let inlinePokemonsNodes = document.querySelectorAll(SELECTOR_INLINE_POKEMON);
+    const inlinePokemonsNodes = document.querySelectorAll(SELECTOR_INLINE_POKEMON);
     return inlinePokemonsNodes;
   }
 
@@ -174,7 +174,7 @@ class League17MonsterComparator {
 
   isTinyCardShine(tinyCardNode) {
     const tinyPokeCardImageNode = tinyCardNode.querySelector('.image');
-    let shineRegExpResult = tinyPokeCardImageNode.src.match(/shine/);
+    const shineRegExpResult = tinyPokeCardImageNode.src.match(/shine/);
 
     return shineRegExpResult != null;
   }

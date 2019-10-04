@@ -19,46 +19,56 @@ class League17HelperApp {
 	}
 
   setDocumentObserver() {
-    let observer = new MutationObserver( (mut)=>{
-      if( !this.isMainDivsLoaded() ) return;
+    const observer = new MutationObserver(() => {
+      if (!this.isMainDivsLoaded()) {
+        return;
+      }
+
       observer.disconnect();
 			this.setObservers();
      });
-    let config = { attributes: true, childList: true, subtree: true };
+
+    const config = { attributes: true, childList: true, subtree: true };
     observer.observe( document, config );
   }
 
   switchOn(value) {
-    if(!value) return this.stopObservers();
+    if (!value) {
+      return this.stopObservers();
+    }
+
     this.setObservers();
   }
 
   isMainDivsLoaded() {
-    let myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
-		let enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
-		let myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS);
-		let pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
-    let pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
-    let farm = document.querySelector(SELECTOR_NURSERY_PANEL);
+    const myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
+		const enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
+		const myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS);
+		const pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
+    const pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
+    const farm = document.querySelector(SELECTOR_NURSERY_PANEL);
 
-    let allMainDivsLoaded = myPokemonDiv && enemyPokemonDiv && myPokeTeam && pokeCards
-      pokeCards && pokedex && farm;
+    const allMainDivsLoaded = myPokemonDiv && enemyPokemonDiv && myPokeTeam && pokeCards
+      && pokedex && farm;
+
     return allMainDivsLoaded;
   }
 
 	setObservers() {
-    if(this.observer) return;
+    if (this.observer) {
+      return;
+    }
 
-		let myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
-		let enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
-		let myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS); // .divPokeTeam
-		let pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
-    let pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
-    let farm = document.querySelector(SELECTOR_NURSERY_PANEL);
+		const myPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_PLAYER);
+		const enemyPokemonDiv = document.querySelector(SELECTOR_FIGHT_POKEMON_PANEL_ENEMY);
+		const myPokeTeam = document.querySelector(SELECTOR_MENU_PANELS); // .divPokeTeam
+		const pokeCards = document.querySelector(SELECTOR_POKE_CARDS);
+    const pokedex = document.querySelector(SELECTOR_POKEDEX_PANEL);
+    const farm = document.querySelector(SELECTOR_NURSERY_PANEL);
 
-		let config = { attributes: true, childList: true, subtree: true };
+		const config = { attributes: true, childList: true, subtree: true };
 
-    let observer = new MutationObserver(  (mut)=>{ this.comparator.compare(); } );
+    const observer = new MutationObserver(() => {this.comparator.compare();});
     this.observer = observer;
 
 		observer.observe( myPokemonDiv, config );
@@ -70,7 +80,10 @@ class League17HelperApp {
   }
 
   stopObservers() {
-    if(!this.observer) return;
+    if (!this.observer) {
+      return;
+    }
+
     this.observer.disconnect();
     this.observer = undefined;
   }
