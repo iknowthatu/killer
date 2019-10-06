@@ -1,89 +1,91 @@
 import EnvironmentUtils from '../../Utils/EnvironmentUtils';
+import CommonUtils from '../../Utils/CommonUtils';
 
 class HealerHeart {
   constructor() {
-    this.init();
+    // this.init();
   }
 
-  init() {
-    this.settings = {};
-    this.nextPulse = this.nextPulse.bind(this);
-    this.setSettings = this.setSettings.bind(this);
-    this.healAll =this.healAll.bind(this);
-    this.isTeamRestored = this.isTeamRestored.bind(this);
+  // init() {
+  //   this.settings = {};
+  //   this.nextPulse = this.nextPulse.bind(this);
+  //   this.setSettings = this.setSettings.bind(this);
+  //   this.healAll = this.healAll.bind(this);
+  //   this.isTeamRestored = this.isTeamRestored.bind(this);
+  // }
+
+  static getWayToPC(state) {
+    const WAY_TO_PC_REGEXP = /[^/]*/;
+    const wayToPcRegExpResult = state.settings.waytoheal.match(WAY_TO_PC_REGEXP);
+    return wayToPcRegExpResult ? wayToPcRegExpResult[0] : '';
   }
 
-  nextPulse(params = {}) {
-    if (!params.needHeal || params.isFight || !this.settings.autoheal) {
-      return params;
-    }
-
-    if (params.nextLocationNumber != null && !params.destinationReached) {
-      return params;
-    }
-
-    const newParams = {...params};
-
-    if (params.destinationReached && params.direction == 'fwd') {
-      //console.log('we have reached a pc');
-      newParams.direction = 'bck';
-      newParams.destinationReached = false;
-      return this.healAll()
-        .then(_ => newParams);
-    }
-
-    if (params.destinationReached && params.direction != 'fwd') {
-      //console.log('we have back to farm place ;)');
-      newParams.needHeal = false;
-      newParams.needMove = false;
-      EnvironmentUtils.turnWildPokemons(true);
-      return newParams;
-    }
-
-    //console.info('go to heal');
-    newParams.needMove = true;
-    newParams.waySource = this.settings.waytoheal;
-    return newParams;
+  static getWayFromPC(state) {
+    const WAY_FROM_PC_REGEXP = /\/([^]*)/;
+    const wayToPcRegExpResult = state.settings.waytoheal.match(WAY_FROM_PC_REGEXP);
+    return wayToPcRegExpResult ? wayToPcRegExpResult[1] : '';
   }
 
-  setSettings(settings={}) {
-    this.settings = settings;
+  async nextPulse(state) {
+    const needHeal = state.getParam('needHeal');
+    if (!needHeal || !state.settings.autoheal) {
+      return state;
+    }
+
+    if (!EnvironmentUtils.isPokecenter()) {
+      state.setParam('moving', true);
+      state.setParam('way', HealerHeart.getWayToPC(state));
+      return state;
+    }
+
+    await HealerHeart.healAll();
+    state.setParam('needHeal', false);
+    state.setParam('moving', true);
+    state.setParam('turnOnWild', true);
+    state.setParam('way', HealerHeart.getWayFromPC(state));
+    return state;
   }
 
   /* healing commands */
-
-  healAll() {
+  static async healAll() {
     const healLink = 'https://game.league17.ru/do/pc/heal/poke';
-    const params = [{key:'vars', value: 0}];
+    const params = [{ key:'vars', value: 0 }];
     const healResponseChecker = response => {
-      if(!response || !response.alerten || response.alerten.type != 'success') {
+      if (!response || !response.alerten || response.alerten.type !== 'success') {
         //console.log(response.alerten);
         throw 'Error healing';
       }
       return true;
     };
 
-    return this.settings.organism.sendRequest(healLink, params)
-      .then(healResponseChecker)
-      .then(this.isTeamRestored);
+    const healResponse = await CommonUtils.sendRequest(healLink, params);
+    healResponseChecker(healResponse);
+    return await HealerHeart.isTeamRestored();
   }
 
-  isTeamRestored() {
-    const teamRestoringChecker = (teamResponse) => {
-      const team = teamResponse.object;
+  static async isTeamRestored() {
+    const teamRestoringChecker = teamCheckResponse => {
+      const team = teamCheckResponse.object;
       const teamNotRestored = team.some(pokemon => {
-        if(pokemon.hp < pokemon.hp_max) return true;
+        if (pokemon.hp < pokemon.hp_max) {
+          return true;
+        }
+
         const moves = Object.values(pokemon.moves);
-        const isMovesNotRestored = moves.some(move => {
-          if(!move)return false;
+        return moves.some(move => {
+          if (!move) {
+            return false;
+          }
+
           return move.pp < move.pp_max;
         });
       });
+
       return !teamNotRestored;
     };
 
-    return this.settings.organism.sendRequest('https://game.league17.ru/do/pokes/load/team')
-      .then(teamRestoringChecker);
+    const teamLoadResponse = await CommonUtils.sendRequest('https://game.league17.ru/do/pokes/load/team');
+    return teamRestoringChecker(teamLoadResponse);
     /*
     let nameDivWithParams = '.barHP';
     let team = document.querySelectorAll('.divPokeTeam .minicardContainer');

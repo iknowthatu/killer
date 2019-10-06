@@ -11,7 +11,8 @@ class CommonHeart {
     this.setSettings = this.setSettings.bind(this);
   }
 
-  nextPulse(params = {}) {
+  nextPulse(state) {
+    /*
     const newParams = { ...params };
 
     const isFight = EnvironmentUtils.isFight();
@@ -19,6 +20,9 @@ class CommonHeart {
     newParams.isFight = isFight;
 
     return newParams;
+    */
+
+    return state;
   }
 
   /**

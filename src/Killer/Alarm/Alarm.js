@@ -64,4 +64,6 @@ class Alarm {
   }
 }
 
-export default Alarm;
+const alarmSingleton = new Alarm();
+
+export default alarmSingleton;

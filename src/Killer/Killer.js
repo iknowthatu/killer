@@ -7,21 +7,56 @@ import TravellerHeart from './TravellerHeart/TravellerHeart.js';
 import SettingsView from './SettingsContainer';
 import setRequestsHook from './Inject/RequestsHook';
 // import CookieMaker from './CookieMaker';
-import Alarm from './Alarm/Alarm';
+import alarm from './Alarm/Alarm';
 import CommonUtils from '../Utils/CommonUtils';
+import EnvironmentUtils from '../Utils/EnvironmentUtils';
 
-let lifesCounter = 0;
+class KillerState {
+  constructor(state = {}) {
+    this.params = {...state.params};
+    this.finished = false;
+    this.settings = {...state.settings};
+  }
+
+  isFinished() {
+    return this.finished;
+  }
+
+  end() {
+    this.finished = true;
+  }
+
+  setParam(key, value) {
+    this.params[key] = value;
+  }
+
+  getParam(key) {
+    return this.params[key];
+  }
+
+  removeParam(key) {
+    delete this.params[key];
+  }
+
+  setSettings(settings) {
+    this.settings = settings;
+  }
+
+  getSettings() {
+    return this.settings;
+  }
+}
 
 class Killer {
-  constructor(imageReplacer){
-    //this.init();
+  constructor(imageReplacer) {
     this.setDocumentObserver();
     setRequestsHook();
     this.imageReplacer = imageReplacer;
   }
 
   init() {
-    this.alarm = new Alarm();
+    this.middlewares = [];
+    this.alarm = alarm;
     this.settingsParametres  = [
       'forbiddennumbers', 'waytoheal', 'showpokemons', 'autoheal',
       'showiv', 'controlhp', 'controlexp', 'autocatch', 'autocatchsettings',
@@ -41,20 +76,14 @@ class Killer {
       'attack': [ 0, 0, 0, 0 ],
       'forbiddennumbers': '',
       'showpokemons': true,
-      'autoheal': true,
-      'commonHeart': commonHeart,
-      'killerHeart': killerHeart,
-      'healerHeart': healerHeart,
-      'catcherHeart': catcherHeart,
-      'travellerHeart': travellerHeart,
-      'organism': this
+      'autoheal': true
     };
 
-    this.commonHeart = commonHeart;
-    this.killerHeart = killerHeart;
-    this.healerHeart = healerHeart;
-    this.catcherHeart = catcherHeart;
-    this.travellerHeart = travellerHeart;
+    // this.useMiddleware(state => commonHeart.nextPulse(state));
+    this.useMiddleware(state => killerHeart.nextPulse(state));
+    this.useMiddleware(state => travellerHeart.nextPulse(state));
+    this.useMiddleware(state => healerHeart.nextPulse(state));
+    // this.useMiddleware(state => catcherHeart.nextPulse(state));
 
     this.killerView = killerView;
     this.settingsView = settingsView;
@@ -75,71 +104,30 @@ class Killer {
         }
       }
     });
+
+    this.start();
   }
 
   setDocumentObserver() {
     const observer = new MutationObserver(() => {
-      if (!document.querySelector('#divLocGo .button')) {
+      if (EnvironmentUtils.getLocationButtons().length < 1) {
         return;
       }
 
       observer.disconnect();
       this.init();
-      setTimeout(() => this.settings.globalVars = this.getGlobalVars(), 1000);
+      setTimeout(() => this.settings.globalVars = CommonUtils.getGlobalVars(), 1000);
     });
     const config = { attributes: true, childList: true, subtree: true };
     observer.observe(document, config);
   }
 
-  getGlobalVars() {
-    const hiddenStore = document.querySelector('[data-globalvarsstore]');
-    const globalVars = JSON.parse(hiddenStore.value);
-
-    return globalVars;
-  }
-
-  startKillerLife() {
-    this.currentKillerLife = lifesCounter++;
-    this.killerHeartbeat({ life: this.currentKillerLife });
-  }
-
-  showKilledCounter(value) {
-    const counterView = document.querySelector('[data-view=killedwild]');
-    counterView.value = value ? value : 0;
-  }
-
-  killerHeartbeat(blood = {}) {
-    if (!this.settings.autofight || this.currentKillerLife !== blood.life) {
-      return Promise.resolve(blood);
-    }
-
-    this.showKilledCounter(this.killedCounter);
-
-    const randomTimeInterval = (Math.random()*5 + 2);
-    return Promise.resolve(blood)
-      .then(this.commonHeart.nextPulse)
-      .then(this.killerHeart.nextPulse)
-      .then(this.catcherHeart.nextPulse)
-      .then(this.healerHeart.nextPulse)
-      .then(this.travellerHeart.nextPulse)
-      .then(blood => CommonUtils.wait(randomTimeInterval, blood))
-      .then(blood => this.killerHeartbeat(blood));
-  }
-
-  toggleViewNodeVisibility(viewNode) {
-    if (viewNode.style.display !== 'none') {
-      viewNode.style.display = 'none';
-    } else {
-      viewNode.style.display = 'block';
-    }
-  }
-
   toggleVisibilityMainContainer() {
-    this.toggleViewNodeVisibility(this.killerView.getMainContainerElement());
+    EnvironmentUtils.toggleNodeVisibility(this.killerView.getMainContainerElement());
   }
 
   toggleVisibilitySettingsView() {
-    this.toggleViewNodeVisibility(this.settingsView.getMainContainerElement());
+    EnvironmentUtils.toggleNodeVisibility(this.settingsView.getMainContainerElement());
   }
 
   injectViewsIntoDocument() {
@@ -217,16 +205,12 @@ class Killer {
       break;
     }
 
-    const oldAutofightStatus = this.settings.autofight;
     this.settings = {...newSettings};
-    this.killerHeart.setSettings(this.settings);
-    this.commonHeart.setSettings(this.settings);
-    this.healerHeart.setSettings(this.settings);
-    this.catcherHeart.setSettings(this.settings);
-    this.travellerHeart.setSettings(this.settings);
 
     this.saveSettings();
-    if(this.settings.autofight != oldAutofightStatus) this.startKillerLife();
+    if (!this.settings.alarmswitch) {
+      alarm.stopPlay();
+    }
   }
 
   updateViews(settings) {
@@ -295,22 +279,41 @@ class Killer {
     return settingsToSave;
   }
 
-  sendRequest(url, params = []) {
-    const formData = new FormData();
-    formData.append('t_key', this.settings.globalVars.t_key);
-    params.forEach(param => {
-      formData.append(param.key, param.value);
-    });
+  /**
+   * add middleware to use during lifecycle
+   * @param {Function} middlewareFunction
+   */
+  useMiddleware(middlewareFunction) {
+    this.middlewares.push(middlewareFunction);
+  }
 
-    const options = {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    };
+  async start() {
+    let state = new KillerState();
+    while (true) {
+      try {
+        await CommonUtils.wait(CommonUtils.random(2, 7));
+        state.setSettings(this.settings);
+        if (!this.settings.autofight) {
+          continue;
+        };
 
-    //'http://game.league17.ru/do/pokes/load/team'
-    return fetch(url, options)
-      .then(response => response.json());
+        state = await this.tick(state);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async tick(globalState) {
+    let state = new KillerState(globalState);
+    for (let i = 0, length = this.middlewares.length; i < length; i++) {
+      if (state.isFinished()) {
+        break;
+      }
+      state = await this.middlewares[i](state);
+    }
+
+    return state;
   }
 }
 

@@ -1,78 +1,84 @@
+import EnvironmentUtils from '../../Utils/EnvironmentUtils';
+
 class TravellerHeart {
   constructor() {
-    this.init();
+    // this.init();
   }
 
-  init() {
-    this.nextPulse = this.nextPulse.bind(this);
-    this.setSettings = this.setSettings.bind(this);
+  // init() {
+  //   this.nextPulse = this.nextPulse.bind(this);
+  //   this.setSettings = this.setSettings.bind(this);
+  // }
+
+  nextPulse(state) {
+    const moving = state.getParam('moving');
+
+    if (!moving) {
+      return state;
+    }
+
+    state.end();
+
+    const way = state.getParam('way');
+    const locationInfo = {
+      next: {},
+      current: { position: -1 },
+      previous: {},
+      ...state.getParam('locationInfo')
+    };
+    locationInfo.current.hash = EnvironmentUtils.getLocationInfoByAvailableTransitions();
+
+    if (locationInfo.current.hash === locationInfo.previous.hash) {
+      return state;
+    }
+
+    const wayChain = TravellerHeart.getWaySteps(way);
+    const nextLocationPositionInWayChain = locationInfo.current.position + 1;
+    locationInfo.next.position = nextLocationPositionInWayChain;
+
+    if (nextLocationPositionInWayChain >= wayChain.length) {
+      console.log('place was reached');
+      state = TravellerHeart.finishTravelling(state);
+      return state;
+    }
+
+    TravellerHeart.goToLocation(wayChain[nextLocationPositionInWayChain]);
+    locationInfo.previous = {...locationInfo.current};
+    locationInfo.current = {...locationInfo.next};
+    state.setParam('locationInfo', locationInfo);
+
+    return state;
   }
 
-  setSettings(settings={}) {
-    this.settings = settings;
+  static finishTravelling(state) {
+    state.setParam('moving', false);
+    state.removeParam('locationInfo');
+    if (state.getParam('turnOnWild')) {
+      EnvironmentUtils.turnWildPokemons(true);
+      state.removeParam('turnOnWild');
+    }
+
+    return state;
   }
 
-  nextPulse(params={}) {
-    const newParams = {...params};
-    if (!params.needMove) {
-      newParams.nextLocationNumber = null;
-      newParams.direction = 'fwd';
-      newParams.waySource = '';
-      newParams.prevLocationWays = null;
-      newParams.destinationReached = false;
-    }
-
-    if (params.isFight || !params.needMove || newParams.destinationReached) {
-      return newParams;
-    }
-
-    if (params.prevLocationWays !== null && !this.isPlaceWasChanged(params.prevLocationWays)) {
-      return newParams;
-    }
-
-    const wayChain = this.getWay(params.waySource, params.direction);
-    const locationNumber = params.nextLocationNumber !== null ? params.nextLocationNumber : 0;
-
-    if (locationNumber >= wayChain.length) {
-      newParams.nextLocationNumber = 0;
-      newParams.destinationReached = true;
-      return newParams;
-    }
-
-    newParams.nextLocationNumber = locationNumber + 1;
-    newParams.prevLocationWays = this.goToLocation(wayChain[locationNumber]);
-
-    return newParams;
-  }
-
-  getWay(waytoheal, direction) {
-    if (!waytoheal) {
-      return 1; //no input value or empty
-    }
-    let way = direction == 'fwd' ? waytoheal.match(/([^]+?)\//) : waytoheal.match(/\/([^]+)/);
-
+  static getWaySteps(way) {
     if (!way) {
-      return 2; // no slash in input value
-    }
-    way = way[1].split(';').map(wayStep => wayStep.trim()).filter(wayStep => !!wayStep);
-
-    return way;
-  }
-
-  static getLocationButtons() {
-    return document.querySelectorAll('#divLocGo > .button');
-  }
-
-  goToLocation(locationName) {
-    let locationNumber = locationName.match(/\s+\d+/);
-    if (locationNumber) {
-      locationName = locationName.replace(/\s+\d+/, '');
+      return []; // no input value or empty
     }
 
-    locationNumber = locationNumber && !isNaN(parseInt(locationNumber[0])) && parseInt(locationNumber[0]) || 0;
-    const locationButtonsNodes = TravellerHeart.getLocationButtons();
+    return way.split(';')
+      .map(wayStep => wayStep.trim())
+      .filter(wayStep => !!wayStep);
+  }
+
+  static goToLocation(locationName) {
+    let locationNumber = locationName.match(/\s+\d+/) || [0]; // for locations with similar names
+    locationNumber = parseInt(locationNumber[0]);
+    locationName = locationName.replace(/\s+\d+/, '');
+
+    const locationButtonsNodes = EnvironmentUtils.getLocationButtons();
     if (locationButtonsNodes.length < 1) {
-      console.log('There is no exit');
+      console.log('There is no exit. HELP!!!');
       throw 'No exit here';
     }
 
@@ -86,26 +92,6 @@ class TravellerHeart {
 
     const nextLocationButton = nextLocationButtons[locationNumber];
     nextLocationButton.click();
-
-    return locationButtonsNodes;
-  }
-
-  isPlaceWasChanged(oldLocationButtonsNodes) {
-    const locationButtonsNodes = TravellerHeart.getLocationButtons();
-    if (oldLocationButtonsNodes.length !== locationButtonsNodes.length) {
-      return true;
-    }
-
-    for (let i = 0, length = oldLocationButtonsNodes.length; i < length; i++) {
-      // @TODO seems this zero should be 'i' ?
-      const locationIdForOldButton = oldLocationButtonsNodes[0].outerHTML.match(/btnGo\d+/).toString();
-      const locationIdForNewButton = locationButtonsNodes[0].outerHTML.match(/btnGo\d+/).toString();
-      if (locationIdForNewButton !== locationIdForOldButton) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }
 

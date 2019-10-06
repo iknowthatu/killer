@@ -17,6 +17,7 @@ export const SELECTOR_FIGHT_VIEW = '#divVisioFight';
 export const SELECTOR_CAPTCHA = '#divFightCaptcha';
 export const SELECTOR_FIGHT_STATUS = '#divFightAction';
 export const SELECTOR_FIGHT_DUMMY_POKEMON = '.pokemonBoxDummy';
+export const SELECTOR_FIGHT_PLAYER_DUMMY_POKEMON = `${SELECTOR_FIGHT_POKEMON_PANEL_PLAYER} ${SELECTOR_FIGHT_DUMMY_POKEMON}`;
 
 export const SELECTOR_INTERFACE_TOGGLE_WILD = '#divInputButtons .btnSwitchWilds';
 
@@ -29,3 +30,13 @@ export const SELECTOR_FIGHT_ENEMY_POKEMON_IMAGE = '#divFightH .image > img';
 
 export const SELECTOR_FIGHT_ENEMY_POKEMON_RANK = '#divFightH .rank';
 export const SELECTOR_FIGHT_ENEMY_POKEMON_RANK_ALT = '#divFightH .rank span';
+
+export const SELECTOR_GLOBAL_CONTEXT_MENU = '.divContext';
+export const SELECTOR_GLOBAL_CONTEXT_MENU_TITLE = `${SELECTOR_GLOBAL_CONTEXT_MENU} .divTitle`;
+export const SELECTOR_GLOBAL_CONTEXT_MENU_BODY = `${SELECTOR_GLOBAL_CONTEXT_MENU} .divElement`;
+
+
+export const SELECTOR_LOCATION_TRANSITIONS_BUTTONS = '#divLocGo > .button';
+export const SELECTOR_LOCATION_NPCS = '#divLocNpc';
+export const SELECTOR_POKECENTER_HEAL_BUTTON = `${SELECTOR_LOCATION_NPCS} .btnLocHeal`;
+export const SELECTOR_POKECENTER_FARM_BUTTON = `${SELECTOR_LOCATION_NPCS} .btnLocFarm`;
