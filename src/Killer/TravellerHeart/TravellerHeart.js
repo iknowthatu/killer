@@ -1,16 +1,7 @@
 import EnvironmentUtils from '../../Utils/EnvironmentUtils';
 
 class TravellerHeart {
-  constructor() {
-    // this.init();
-  }
-
-  // init() {
-  //   this.nextPulse = this.nextPulse.bind(this);
-  //   this.setSettings = this.setSettings.bind(this);
-  // }
-
-  nextPulse(state) {
+  static nextPulse(state) {
     const moving = state.getParam('moving');
 
     if (!moving) {

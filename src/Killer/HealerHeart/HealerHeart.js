@@ -2,18 +2,6 @@ import EnvironmentUtils from '../../Utils/EnvironmentUtils';
 import CommonUtils from '../../Utils/CommonUtils';
 
 class HealerHeart {
-  constructor() {
-    // this.init();
-  }
-
-  // init() {
-  //   this.settings = {};
-  //   this.nextPulse = this.nextPulse.bind(this);
-  //   this.setSettings = this.setSettings.bind(this);
-  //   this.healAll = this.healAll.bind(this);
-  //   this.isTeamRestored = this.isTeamRestored.bind(this);
-  // }
-
   static getWayToPC(state) {
     const WAY_TO_PC_REGEXP = /[^/]*/;
     const wayToPcRegExpResult = state.settings.waytoheal.match(WAY_TO_PC_REGEXP);
@@ -26,7 +14,7 @@ class HealerHeart {
     return wayToPcRegExpResult ? wayToPcRegExpResult[1] : '';
   }
 
-  async nextPulse(state) {
+  static async nextPulse(state) {
     const needHeal = state.getParam('needHeal');
     if (!needHeal || !state.settings.autoheal) {
       return state;

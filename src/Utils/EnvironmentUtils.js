@@ -216,4 +216,16 @@ export default class EnvironmentUtils {
       node.style.display = 'block';
     }
   }
+
+  /**
+   * click enter button when game page will be loaded first time.
+   */
+  static startGameProcess() {
+    const startButton = document.querySelector('.waiter .btnStart');
+    if (!startButton) {
+      return;
+    }
+
+    startButton.click();
+  }
 }

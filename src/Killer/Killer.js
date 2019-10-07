@@ -10,12 +10,16 @@ import setRequestsHook from './Inject/RequestsHook';
 import alarm from './Alarm/Alarm';
 import CommonUtils from '../Utils/CommonUtils';
 import EnvironmentUtils from '../Utils/EnvironmentUtils';
+import { FIGHT_KILLED_COUNTER_NAME } from '../configs/killerConfigs';
+
+const KILLER_STATISTICS_STORAGE_NAME = 'killer_statistics';
 
 class KillerState {
   constructor(state = {}) {
     this.params = {...state.params};
     this.finished = false;
     this.settings = {...state.settings};
+    this.statistics = {...state.statistics};
   }
 
   isFinished() {
@@ -45,6 +49,34 @@ class KillerState {
   getSettings() {
     return this.settings;
   }
+
+  getStatistics() {
+    return this.statistics;
+  }
+
+  setStatistics(statistics) {
+    this.statistics = statistics;
+  }
+
+  incrementStatisticValue(key, diff = 1) {
+    const oldValue = this.statistics[key] || 0;
+    this.statistics[key] = oldValue + diff;
+  }
+
+  loadStatistics() {
+    let existedStatisticData = window.localStorage.getItem(KILLER_STATISTICS_STORAGE_NAME);
+    if (existedStatisticData) {
+      existedStatisticData = JSON.parse(existedStatisticData);
+    } else {
+      existedStatisticData = {};
+    }
+
+    this.statistics = existedStatisticData;
+  }
+
+  saveStatistics() {
+    window.localStorage.setItem(KILLER_STATISTICS_STORAGE_NAME, JSON.stringify(this.statistics));
+  }
 }
 
 class Killer {
@@ -55,6 +87,7 @@ class Killer {
   }
 
   init() {
+    window.startGameProcess = EnvironmentUtils.startGameProcess;
     this.middlewares = [];
     this.alarm = alarm;
     this.settingsParametres  = [
@@ -65,11 +98,11 @@ class Killer {
     const killerView = new KillerContainer();
     const settingsView = new SettingsView();
 
-    const commonHeart = new CommonHeart();
-    const killerHeart = new KillerHeart();
-    const healerHeart = new HealerHeart();
-    const catcherHeart = new CatcherHeart();
-    const travellerHeart = new TravellerHeart();
+    // const commonHeart = new CommonHeart();
+    // const killerHeart = new KillerHeart();
+    // const healerHeart = new HealerHeart();
+    // const catcherHeart = new CatcherHeart();
+    // const travellerHeart = new TravellerHeart();
 
     this.settings = {
       'autofight': false,
@@ -80,9 +113,9 @@ class Killer {
     };
 
     // this.useMiddleware(state => commonHeart.nextPulse(state));
-    this.useMiddleware(state => killerHeart.nextPulse(state));
-    this.useMiddleware(state => travellerHeart.nextPulse(state));
-    this.useMiddleware(state => healerHeart.nextPulse(state));
+    this.useMiddleware(state => KillerHeart.nextPulse(state));
+    this.useMiddleware(state => TravellerHeart.nextPulse(state));
+    this.useMiddleware(state => HealerHeart.nextPulse(state));
     // this.useMiddleware(state => catcherHeart.nextPulse(state));
 
     this.killerView = killerView;
@@ -152,7 +185,7 @@ class Killer {
       });
     });
 
-    this.killerView.setSettingsClickListener(_ => this.toggleVisibilitySettingsView());
+    this.killerView.setSettingsClickListener(() => this.toggleVisibilitySettingsView());
   }
 
   setSettingsViewListeners() {
@@ -188,7 +221,7 @@ class Killer {
         }
 
         if (newPartOfSettings.parameter == 'showiv') {
-          this.catcherHeart.setObserverIV(newSettings.showiv);
+          // this.catcherHeart.setObserverIV(newSettings.showiv);
         }
 
         if (newPartOfSettings.parameter == 'alarmvolume') {
@@ -279,6 +312,11 @@ class Killer {
     return settingsToSave;
   }
 
+  static updateKilledCounter(state) {
+    const counterValue = state.getStatistics()[FIGHT_KILLED_COUNTER_NAME];
+    EnvironmentUtils.showKilledCounter(counterValue);
+  }
+
   /**
    * add middleware to use during lifecycle
    * @param {Function} middlewareFunction
@@ -289,10 +327,13 @@ class Killer {
 
   async start() {
     let state = new KillerState();
+    state.loadStatistics();
     while (true) {
       try {
         await CommonUtils.wait(CommonUtils.random(2, 7));
         state.setSettings(this.settings);
+        Killer.updateKilledCounter(state);
+        state.saveStatistics();
         if (!this.settings.autofight) {
           continue;
         };

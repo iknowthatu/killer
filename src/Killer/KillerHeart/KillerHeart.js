@@ -5,21 +5,12 @@ import {
   FIGHT_STATUS_FAIL,
   FIGHT_STATUS_DRAW,
   FIGHT_STATUS_HARD_DRAW,
-  FIGHT_STATUS_POKEMON_LOST
+  FIGHT_STATUS_POKEMON_LOST,
+  FIGHT_KILLED_COUNTER_NAME
 } from '../../configs/killerConfigs';
 import alarm from './../Alarm/Alarm';
 
 class KillerHeart {
-  constructor() {
-    // this.init();
-  }
-
-  // init() {
-  //   this.settings = {};
-  //   this.nextPulse = this.nextPulse.bind(this);
-  //   this.setSettings = this.setSettings.bind(this);
-  // }
-
   static switchAlarm(value) {
     if (!value) {
       return alarm.stopPlay();
@@ -28,7 +19,7 @@ class KillerHeart {
     alarm.startPlay();
   }
 
-  async nextPulse(state) {
+  static async nextPulse(state) {
     const fightMode = EnvironmentUtils.isFight();
     if (!fightMode) {
       return state;
@@ -56,14 +47,13 @@ class KillerHeart {
       return state;
     };
 
-    // newParams.killedCounter = newParams.killedCounter ? newParams.killedCounter : 0;
     const fightStatus = FightUtils.getFightStatus();
     switch (fightStatus) {
       case FIGHT_STATUS_VICTORY:
       case FIGHT_STATUS_FAIL:
       case FIGHT_STATUS_DRAW:
         if (fightStatus === FIGHT_STATUS_VICTORY) {
-          // this.settings.organism.killedCounter++;
+          state.incrementStatisticValue(FIGHT_KILLED_COUNTER_NAME);
         }
 
         EnvironmentUtils.closeFightLayerNode();
@@ -71,7 +61,7 @@ class KillerHeart {
 
       case FIGHT_STATUS_HARD_DRAW:
         console.log(`Pokemon was killed but enemy was killed too`);
-        // this.settings.organism.killedCounter++;
+        state.incrementStatisticValue(FIGHT_KILLED_COUNTER_NAME);
         EnvironmentUtils.closeFightLayerNode();
         KillerHeart.setNeedHeal(state);
         return state;
