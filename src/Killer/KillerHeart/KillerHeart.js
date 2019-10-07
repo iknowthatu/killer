@@ -98,7 +98,7 @@ class KillerHeart {
       KillerHeart.setNeedHeal(state);
     }
 
-    .. const enemyPokemonNumber = EnvironmentUtils.getEnemyPokemonNumberAsString();
+    // const enemyPokemonNumber = EnvironmentUtils.getEnemyPokemonNumberAsString();
     // newParams.lastPokemonNumber = enemyPokemonNumber;
     if (FightUtils.isAttackForbiddenForThisNumber(state.settings.forbiddennumbers)) {
       return state;
