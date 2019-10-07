@@ -87,7 +87,6 @@ class Killer {
   }
 
   init() {
-    window.startGameProcess = EnvironmentUtils.startGameProcess;
     this.middlewares = [];
     this.alarm = alarm;
     this.settingsParametres  = [
@@ -97,12 +96,6 @@ class Killer {
     ];
     const killerView = new KillerContainer();
     const settingsView = new SettingsView();
-
-    // const commonHeart = new CommonHeart();
-    // const killerHeart = new KillerHeart();
-    // const healerHeart = new HealerHeart();
-    // const catcherHeart = new CatcherHeart();
-    // const travellerHeart = new TravellerHeart();
 
     this.settings = {
       'autofight': false,
@@ -240,7 +233,10 @@ class Killer {
 
     this.settings = {...newSettings};
 
-    this.saveSettings();
+    if (newPartOfSettings.save !== false) {
+      this.saveSettings();
+    }
+
     if (!this.settings.alarmswitch) {
       alarm.stopPlay();
     }
@@ -295,7 +291,7 @@ class Killer {
     const parametres = this.settingsParametres;
     parametres.forEach(parameter => {
       const value = loadedSettings[parameter] && loadedSettings[parameter] !== 'undefined' ? loadedSettings[parameter] : '';
-      this.changeSettings({ parameter: parameter, value: value });
+      this.changeSettings({ parameter: parameter, value: value, save: false });
     });
     this.settings.attack = loadedSettings.attack;
   }

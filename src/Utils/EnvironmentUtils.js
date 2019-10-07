@@ -218,6 +218,15 @@ export default class EnvironmentUtils {
   }
 
   /**
+   * toggle autofight input
+   * @param {boolean} newState
+   */
+  static turnAutoFight(newState) {
+    const autofightButtonCheckbox = document.querySelector('[data-changeaction=autofight]>input');
+    if(newState !== autofightButtonCheckbox.checked) autofightButtonCheckbox.click();
+  }
+
+  /**
    * click enter button when game page will be loaded first time.
    */
   static startGameProcess() {
@@ -227,5 +236,7 @@ export default class EnvironmentUtils {
     }
 
     startButton.click();
+    EnvironmentUtils.turnWildPokemons(true);
+    EnvironmentUtils.turnAutoFight(true);
   }
 }
