@@ -20,6 +20,9 @@ class TravellerHeart {
     locationInfo.current.hash = EnvironmentUtils.getLocationInfoByAvailableTransitions();
 
     if (locationInfo.current.hash === locationInfo.previous.hash) {
+      locationInfo.current = {...locationInfo.previous};
+      locationInfo.previous = {};
+      state.setParam('locationInfo', locationInfo);
       return state;
     }
 
