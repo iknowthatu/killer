@@ -11,6 +11,13 @@ import {
 import alarm from './../Alarm/Alarm';
 
 class KillerHeart {
+  static wrapperCall(methodName, ...args) {
+    // for electron wrapper
+    if (window.killerExtension && window.killerExtension[methodName]) {
+      window.killerExtension[methodName](...args);
+    }
+  }
+
   static switchAlarm(value) {
     if (!value) {
       return alarm.stopPlay();
@@ -30,12 +37,8 @@ class KillerHeart {
     const captchaBlockedProcess = EnvironmentUtils.isCaptchaVisible();
     if (captchaBlockedProcess) {
       console.log('u should enter captcha');
-
-      // for electron wrapper
-      if (window.killerExtension && window.killerExtension.shotCaptcha) {
-        window.killerExtension.shotCaptcha();
-      }
-
+      KillerHeart.wrapperCall('sendMessage', 'captcha');
+      KillerHeart.wrapperCall('shotCaptcha');
       state.settings.alarmswitch && KillerHeart.switchAlarm(true);
       return state;
     };
@@ -91,6 +94,7 @@ class KillerHeart {
     // const enemyPokemonNumber = EnvironmentUtils.getEnemyPokemonNumberAsString();
     // newParams.lastPokemonNumber = enemyPokemonNumber;
     if (FightUtils.isAttackForbiddenForThisNumber(state.settings.forbiddennumbers)) {
+      KillerHeart.wrapperCall('sendMessage', 'forbidden');
       return state;
     }
 
@@ -98,6 +102,7 @@ class KillerHeart {
     if (!enemyIsNormal) {
       console.log('Enemy is shine or smt else');
       // state.settings.alarmswitch &&
+      KillerHeart.wrapperCall('sendMessage', 'shiny');
       KillerHeart.switchAlarm(true);
 
       return state;
