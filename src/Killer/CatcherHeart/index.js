@@ -353,7 +353,7 @@ class CatcherHeart {
     let divContext = document.querySelector('.divContext');
     if(!divContext || divContext.style.display == 'none') return false;
     let divContextTitle = document.querySelector('.divContext .divTitle').innerHTML;
-    if(!divContextTitle.match(/выбрать монстра/i)) return false;
+    if(!divContextTitle.match(/монстра/i)) return false;
     let pokemons = document.querySelectorAll('.divContext .divElement');
     if(!pokemons || pokemons.length < 1) return false;
     return true;
